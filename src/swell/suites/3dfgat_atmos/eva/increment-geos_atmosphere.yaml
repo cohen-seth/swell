@@ -3,7 +3,8 @@ datasets:
   type: LatLon
   filename: {{increment_file_path}}
   name: experiment_increment
-  variables: [ps, ua, va, t, q, lat, lon]
+  variables: [ps, ua, va, t, q, lat, lon,
+              ts, ql, qi, qs]
 
 graphics:
 
