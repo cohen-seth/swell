@@ -3,15 +3,15 @@ jedi_build_method: use_existing
 model_components: ['geos_atmosphere']
 models:
   geos_atmosphere:
-    horizontal_resolution: 13  #  91    # 13
-    npx_proc: 2
-    npy_proc: 2
+    horizontal_resolution: 91
+    npx_proc: 4
+    npy_proc: 4
     cycle_times:
     - T00
     - T06
     - T12
     - T18
-    ensemble_num_members: 2  #  32
+    ensemble_num_members: 32
     skip_ensemble_hofx: true
     local_ensemble_solver: GETKF
     local_ensemble_use_linear_observer: true
@@ -20,28 +20,13 @@ models:
     ensmean_only: false
     path_to_ensemble: /discover/nobackup/projects/gmao/advda/SwellTestData/letk/ensemble/91/Y%Y/M%m/D%d/H%H/geos*%Y%m%d_%H%M%Sz.nc4
     observations:
-# coventional
-# work 3.  Yes: this works
-#    - omi_aura
-#    - ompsnm_npp
-#    - aircraft
-
-#    Not tested
-#    - pibal
-#    - satwind
-#    - scatwind
-#    - sfcship
-#    - sfc
-#    - sondes
-#    - gps
-
-## sat
-#    - airs_aqua               # Yes, works
+    - aircraft
+    - airs_aqua
 #    - amsr2_gcom-w1
 #    - amsua_aqua
-#    - amsua_metop-b           # Yes, works
+    - amsua_metop-b
 #    - amsua_metop-c
-#    - amsua_n15               # Yes, works
+    - amsua_n15
 #    - amsua_n18
 #    - amsua_n19
 #    - atms_n20
@@ -52,20 +37,26 @@ models:
 #    - cris-fsr_n20
 #    - cris-fsr_npp
 #    - gmi_gpm
-    - iasi_metop-b          # fail, node failure
-#    - iasi_metop-c           # fail, node failure
+##    - gps
+##    - iasi_metop-b
+##    - iasi_metop-c
 #    - mhs_metop-b
 #    - mhs_metop-c
 #    - mhs_n19
 #    - mls55_aura
+#    - obsop_name_map
+    - omi_aura
+    - ompsnm_npp
+#    - pibal
+#    - satwind
+#    - scatwind
+#    - sfcship
+#    - sfc
+#    - sondes
 #    - ssmis_f17
-
+#    - ufo_tests
     obs_experiment: x0048v2
     background_experiment: x0048
     window_type: 3D
     clean_patterns:
-#    - 'geos.mem*.nc4'
     - '*.txt'
-
-driver:
-  update obs config with geometry info: true
