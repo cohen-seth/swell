@@ -171,31 +171,46 @@ class GetObservations(taskBase):
             # Aircraft bias correction files
             # ------------------------------
             if observation == 'aircraft':
+                target_abccoef = observation_dict['obs bias']['input file']
 
-                # Aircraft bias correction files
-                target_file_types = [
-                    f'aircraft_abias_air_ascent',
-                    f'aircraft_abias_air_ascentSquared',
-                    f'aircraft_abias_air_constant',
-                ]
+                # We assume fetch is required unless we are cycling VarBC
+                fetch_required = True
 
-                for target_file_type in target_file_types:
+                self.logger.info(f'Processing satellite bias file {target_sbccoef}')
+                fetch(date=background_time,
+                      target_file=target_abccoef,
+                      provider='gsi',
+                      obs_type=observation,
+                      type='bc',
+                      experiment=obs_experiment,
+                      file_type='satbias')
 
-                    target_file = os.path.join(self.cycle_dir(),
-                                               f'{target_file_type}.{background_time}.csv')
 
-                    self.logger.info(f'Processing aircraft bias file {target_file}')
-
-                    fetch(date=background_time,
-                          target_file=target_file,
-                          provider='gsi',
-                          obs_type=target_file_type,
-                          type='bc',
-                          experiment=obs_experiment,
-                          file_type='csv')
-
-                    # Change permission
-                    os.chmod(target_file, 0o644)
+#
+#               # Aircraft bias correction files
+#               target_file_types = [
+#                   f'aircraft_abias_air_ascent',
+#                   f'aircraft_abias_air_ascentSquared',
+#                   f'aircraft_abias_air_constant',
+#               ]
+#
+#               for target_file_type in target_file_types:
+#
+#                   target_file = os.path.join(self.cycle_dir(),
+#                                              f'{target_file_type}.{background_time}.csv')
+#
+#                   self.logger.info(f'Processing aircraft bias file {target_file}')
+#
+#                   fetch(date=background_time,
+#                         target_file=target_file,
+#                         provider='gsi',
+#                         obs_type=target_file_type,
+#                         type='bc',
+#                         experiment=obs_experiment,
+#                         file_type='csv')
+#
+#                   # Change permission
+#                   os.chmod(target_file, 0o644)
 
             # Otherwise there is only work to do if the observation operator has bias correction
             # ----------------------------------------------------------------------------------
