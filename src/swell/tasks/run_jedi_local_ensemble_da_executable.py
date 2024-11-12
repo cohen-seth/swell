@@ -170,22 +170,22 @@ class RunJediLocalEnsembleDaExecutable(taskBase):
 
         swell_path = get_swell_path()
         localization_path = os.path.join(swell_path,
-            'configuration/jedi/interfaces/geos_atmosphere/observations/localization')
+                                         f'configuration/jedi/interfaces/geos_atmosphere'
+                                         f'/observations/localization')
         if self.config.local_ensemble_use_linear_observer():
             for index, observation in enumerate(observations):
                 # Get pointer to observer (ref to list)
                 observer = jedi_config_dict['observations']['observers'][index]
-
                 print('ob=', observation)
                 config_file = os.path.join(localization_path, f'{observation}.yaml')
-                with open (config_file, 'r') as f:
+                with open(config_file, 'r') as f:
                     loc_list = yaml.safe_load(f)
                     horizLoc = loc_list['obs localizations']
                 localization = [horizLoc]
-                
                 observer.update({'obs localizations': localization})
-                observer['obs space'].update({'distribution': {'name': 'Halo', 'halo size': 5000.e3}})
-                
+                observer['obs space'].update(
+                    {'distribution': {'name': 'Halo', 'halo size': 5000.e3}})
+
         # Write the expanded dictionary to YAML file
         # ------------------------------------------
         with open(jedi_config_file, 'w') as jedi_config_file_open:
