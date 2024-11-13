@@ -14,27 +14,27 @@ obs space:
       obsfile: '{{cycle_dir}}/{{experiment_id}}.aircraft.{{window_begin}}.nc4'
   simulated variables: [airTemperature, windEastward, windNorthward]
 
-  obs bias:
-    input file: '{{cycle_dir}}/aircraft_abias_air.{{window_begin}}.nc4'
-    bc by record: true
-    variational bc:
-      predictors:
-      - name: constant
-      - name: obsMetadataPredictor
-        variable: aircraftAscentRate
-      - name: obsMetadataPredictor
-        variable: aircraftAscentRate
-        order: 2
-    covariance: # TODO: all of this section needs revisiting by experts, this is copy-paste from amsua yaml
-      minimal required obs number: 20
-      variance range: [1.0e-6, 10.0]
-      step size: 1.0e-4
-      largest analysis variance: 10000.0
-      prior:
-        input file: Data/ufo/testinput_tier_1/aircraft_bias_20210731T18Z.nc4
-        inflation:
-          ratio: 1.1
-          ratio for small dataset: 2.0
+obs bias:
+  input file: '{{cycle_dir}}/aircraft_abias_air.{{window_begin}}.nc4'
+  bc by record: true
+  variational bc:
+    predictors:
+    - name: constant
+    - name: obsMetadataPredictor
+      variable: aircraftAscentRate
+    - name: obsMetadataPredictor
+      variable: aircraftAscentRate
+      order: 2
+  covariance: # TODO: all of this section needs revisiting by experts, this is copy-paste from amsua yaml
+    minimal required obs number: 20
+    variance range: [1.0e-6, 10.0]
+    step size: 1.0e-4
+    largest analysis variance: 10000.0
+    prior:
+      input file: Data/ufo/testinput_tier_1/aircraft_bias_20210731T18Z.nc4
+      inflation:
+        ratio: 1.1
+        ratio for small dataset: 2.0
 
 obs operator:
   name: Composite
