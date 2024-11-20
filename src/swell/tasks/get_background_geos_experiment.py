@@ -14,7 +14,7 @@ import os
 import tarfile
 
 from swell.tasks.base.task_base import taskBase
-from swell.utilities.datetime import datetime_formats
+from swell.utilities.datetime_util import datetime_formats
 
 # --------------------------------------------------------------------------------------------------
 
@@ -51,7 +51,11 @@ class GetBackgroundGeosExperiment(taskBase):
         # Since this is an optional task, check if the geos_x_background_directory is
         # set to /dev/null, if so fail the task
         # ---------------------------------------------------------------------
-        if geos_x_background_directory == '/dev/null':
+
+        if (
+                (geos_x_background_directory is None) or
+                (geos_x_background_directory.startswith("/dev/null"))
+        ):
             self.logger.abort('No X background location specified, failing task')
             return
 

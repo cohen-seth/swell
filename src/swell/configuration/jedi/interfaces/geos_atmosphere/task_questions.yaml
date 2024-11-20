@@ -12,6 +12,8 @@ analysis_variables:
   - ps
   - qi
   - ql
+  - qr
+  - qs
   - o3ppmv
   - phis
   - frocean
@@ -25,6 +27,8 @@ analysis_variables:
   - ps
   - qi
   - ql
+  - qr
+  - qs
   - o3ppmv
   - phis
   - frocean
@@ -125,6 +129,12 @@ local_ensemble_solver:
   options:
   - LETKF
   - GETKF
+
+local_ensemble_use_linear_observer:
+  default_value: true
+  options:
+  - true
+  - false
 
 minimizer:
   default_value: DRPCG
@@ -238,6 +248,12 @@ path_to_gsi_nc_diags:
   default_value: /discover/nobackup/projects/gmao/advda/SwellTestData/ufo_testing/ncdiag/%Y%m%d%H
 
 produce_geovals:
+  default_value: true
+  options:
+  - true
+  - false
+
+skip_ensemble_hofx:
   default_value: true
   options:
   - true

@@ -9,15 +9,19 @@
 
 import os
 import shutil
+from typing import Tuple
 
-from jedi_bundle.bin.jedi_bundle import get_default_config
+from swell.utilities.logger import Logger
+from jedi_bundle.utils.yaml import load_yaml
 from jedi_bundle.config.config import check_platform
+from jedi_bundle.bin.jedi_bundle import get_default_config
 
+from swell.utilities.pinned_versions.check_hashes import get_pinned_vers_path
 
 # --------------------------------------------------------------------------------------------------
 
 
-def build_and_source_dirs(package_path):
+def build_and_source_dirs(package_path: str) -> Tuple[str, str]:
 
     # Make package directory
     # ----------------------
@@ -36,7 +40,7 @@ def build_and_source_dirs(package_path):
 # --------------------------------------------------------------------------------------------------
 
 
-def link_path(source, target):
+def link_path(source: str, target: str) -> None:
 
     # Remove existing source path if present
     if os.path.islink(target):  # Is a link
@@ -51,8 +55,14 @@ def link_path(source, target):
 # --------------------------------------------------------------------------------------------------
 
 
-def set_jedi_bundle_config(bundles, path_to_source, path_to_build, platform,
-                           cores_to_use_for_make=6):
+def set_jedi_bundle_config(
+    bundles: list,
+    path_to_source: str,
+    path_to_build: str,
+    platform: str,
+    use_pinned: bool,
+    cores_to_use_for_make: int = 6
+) -> dict:
 
     # Start from the default jedi_bundle config file
     jedi_bundle_config = get_default_config()
@@ -80,6 +90,13 @@ def set_jedi_bundle_config(bundles, path_to_source, path_to_build, platform,
 
     # Always use the swell defined modules to build
     jedi_bundle_config['configure_options']['external_modules'] = True
+
+    # Add pinned_versions to jedi_bundle_config if applicable
+    if use_pinned:
+        logger = Logger("LoadPinnedVersions")
+        pinned_config_file = get_pinned_vers_path()
+        pinned_versions_dict = load_yaml(logger, pinned_config_file)
+        jedi_bundle_config['pinned_versions'] = pinned_versions_dict
 
     # Return the dictionary object
     return jedi_bundle_config

@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------------------------
 
 import os
+from typing import Optional
 
 from swell.tasks.base.task_base import taskBase
 from swell.utilities.shell_commands import run_track_log_subprocess
@@ -17,7 +18,7 @@ from swell.utilities.shell_commands import run_track_log_subprocess
 
 class RunGeosExecutable(taskBase):
 
-    def execute(self):
+    def execute(self) -> None:
 
         # Obtain processor information from AGCM.rc
         # Strip is required in case AGCM.rc file was rewritten
@@ -52,26 +53,32 @@ class RunGeosExecutable(taskBase):
 
         geos_lib_path = os.path.join(self.experiment_path(), 'GEOSgcm', 'build', 'lib')
 
-        self.run_executable(self.forecast_dir(), np, geos_executable_path,
-                            geos_modules_path, output_log_file, geos_lib_path)
+        self.run_executable(np, geos_executable_path, geos_modules_path, output_log_file,
+                            geos_lib_path)
 
     # ----------------------------------------------------------------------------------------------
 
-    def run_executable(self, cycle_dir, np, geos_executable, geos_modules, output_log,
-                       geos_lib_path=None):
+    def run_executable(
+        self,
+        np: int,
+        geos_executable: str,
+        geos_modules: str,
+        output_log: str,
+        geos_lib_path: Optional[str] = None
+    ) -> None:
 
         # Run the GEOS executable
         # -----------------------
         self.logger.info('Running '+geos_executable+' with '+str(np)+' processors.')
 
         command = f'source {geos_modules} \n' + \
-            f'cd {cycle_dir} \n' + \
             f'env LD_PRELOAD={geos_lib_path}/libmom6.so:{geos_lib_path}/libcice6.so ' + \
             f'mpirun -np {np} {geos_executable} ' + \
             f'--logging_config logging.yaml'
 
         # Run command within bash environment
         # -----------------------------------
-        run_track_log_subprocess(self.logger, ['/bin/bash', '-c', command], output_log=output_log)
+        run_track_log_subprocess(self.logger, ['/bin/bash', '-c', command], output_log=output_log,
+                                 cwd=self.forecast_dir())
 
 # --------------------------------------------------------------------------------------------------

@@ -11,13 +11,14 @@ import yaml
 from swell.tasks.base.task_base import taskBase
 from swell.utilities.shell_commands import run_subprocess, run_track_log_subprocess
 from swell.utilities.run_jedi_executables import jedi_dictionary_iterator
+from swell.utilities.file_system_operations import check_if_files_exist_in_path
 
 # --------------------------------------------------------------------------------------------------
 
 
 class GenerateBClimatology(taskBase):
 
-    def jedi_dictionary_iterator(self, jedi_config_dict):
+    def jedi_dictionary_iterator(self, jedi_config_dict: dict) -> None:
 
         # Loop over dictionary and replace if value is a dictionary
         # ---------------------------------------------------------
@@ -32,7 +33,7 @@ class GenerateBClimatology(taskBase):
 
     # ----------------------------------------------------------------------------------------------
 
-    def generate_jedi_config(self):
+    def generate_jedi_config(self) -> dict:
 
         # Render StaticBInit (no templates needed)
         # ----------------------------------------
@@ -46,7 +47,7 @@ class GenerateBClimatology(taskBase):
 
     # ----------------------------------------------------------------------------------------------
 
-    def initialize_background(self):
+    def initialize_background(self) -> None:
 
         if self.background_error_model == 'bump':
 
@@ -61,7 +62,7 @@ class GenerateBClimatology(taskBase):
 
     # ----------------------------------------------------------------------------------------------
 
-    def generate_bump(self):
+    def generate_bump(self) -> None:
 
         self.logger.info(' Generating BUMP files.')
 
@@ -104,7 +105,9 @@ class GenerateBClimatology(taskBase):
 
     # ----------------------------------------------------------------------------------------------
 
-    def generate_explicit_diffusion(self):
+    def generate_explicit_diffusion(self) -> None:
+        # This will use static horizontal correlation files and generate the vertical correlation
+        # file based on the MLD.
 
         self.logger.info(' Generating files required by EXPLICIT_DIFFUSION.')
         self.obtain_scales()
@@ -112,7 +115,7 @@ class GenerateBClimatology(taskBase):
 
     # ----------------------------------------------------------------------------------------------
 
-    def obtain_scales(self):
+    def obtain_scales(self) -> None:
 
         # This executes calc_scales.py under SOCA/tools to obtain the vertical scale.
         # The output then will be used to generate the vertical correlation files via
@@ -153,11 +156,11 @@ class GenerateBClimatology(taskBase):
 
         # Containerized run of the script
         # -------------------------------
-        run_subprocess(self.logger, ['/bin/bash', '-c', command])
+        run_subprocess(self.logger, ['/bin/bash', '-c', command], cwd=self.cycle_dir())
 
     # ----------------------------------------------------------------------------------------------
 
-    def parameters_diffusion_vt(self):
+    def parameters_diffusion_vt(self) -> None:
 
         # This generates the MLD dependent vertical correlation file using the
         # calculated_scales
@@ -199,23 +202,26 @@ class GenerateBClimatology(taskBase):
 
         # Run the JEDI executable
         # -----------------------
-        self.logger.info('Running '+jedi_executable_path+' with '+str(self.np)+' processors.')
+        if not self.generate_yaml_and_exit:
+            self.logger.info('Running '+jedi_executable_path+' with '+str(self.np)+' processors.')
+            command = ['mpirun', '-np', str(self.np), jedi_executable_path, jedi_config_file]
 
-        command = ['mpirun', '-np', str(self.np), jedi_executable_path, jedi_config_file]
+            # Move to the cycle directory
+            # ---------------------------
+            background_error_model_dir = os.path.join(self.cycle_dir(), 'background_error_model')
+            if not os.path.exists(background_error_model_dir):
+                os.mkdir(background_error_model_dir)
 
-        # Move to the cycle directory
-        # ---------------------------
-        os.chdir(self.cycle_dir())
-        if not os.path.exists('background_error_model'):
-            os.mkdir('background_error_model')
+            # Execute
+            # -------
+            run_track_log_subprocess(self.logger, command, output_log_file, cwd=self.cycle_dir())
 
-        # Execute
-        # -------
-        run_track_log_subprocess(self.logger, command, output_log_file)
+        else:
+            self.logger.info('YAML generated, now exiting.')
 
     # ----------------------------------------------------------------------------------------------
 
-    def execute(self):
+    def execute(self) -> None:
         """ Creates B Matrix files for background error model(s):
 
             - BUMP:
@@ -239,9 +245,21 @@ class GenerateBClimatology(taskBase):
         window_offset = self.config.window_offset()
         window_type = self.config.window_type()
         background_error_model = self.config.background_error_model()
+
+        swell_static_files_user = self.config.swell_static_files_user(None)
         self.swell_static_files = self.config.swell_static_files()
+
+        # Use static_files_user if present in config and contains files
+        # -------------------------------------------------------------
+        if swell_static_files_user is not None:
+            self.logger.info('swell_static_files_user specified, checking for files')
+            if check_if_files_exist_in_path(self.logger, swell_static_files_user):
+                self.logger.info(f'Using swell static files in {swell_static_files_user}')
+                self.swell_static_files = swell_static_files_user
+
         self.horizontal_resolution = self.config.horizontal_resolution()
         self.vertical_resolution = self.config.vertical_resolution()
+        self.generate_yaml_and_exit = self.config.generate_yaml_and_exit(False)
 
         # Get the JEDI interface for this model component
         # -----------------------------------------------
@@ -250,7 +268,7 @@ class GenerateBClimatology(taskBase):
         self.jedi_rendering.add_key('total_processors', self.config.total_processors(None))
         self.jedi_rendering.add_key('analysis_variables', self.config.analysis_variables())
         self.jedi_rendering.add_key('background_error_model', self.config.background_error_model())
-
+        self.jedi_rendering.add_key('marine_models', self.config.marine_models(None))
         # Compute data assimilation window parameters
         # -------------------------------------------
         local_background_time = self.da_window_params.local_background_time(window_offset,

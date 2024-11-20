@@ -11,6 +11,7 @@
 import glob
 import os
 import yaml
+from typing import Optional
 
 from swell.tasks.base.task_base import taskBase
 from swell.utilities.netcdf_files import combine_files_without_groups
@@ -24,7 +25,7 @@ class RunJediHofxExecutable(taskBase):
 
     # ----------------------------------------------------------------------------------------------
 
-    def execute(self, ensemble_members=None):
+    def execute(self, ensemble_members: Optional[list] = None) -> None:
 
         # Jedi application name
         # ---------------------
@@ -39,7 +40,7 @@ class RunJediHofxExecutable(taskBase):
         observations = self.config.observations()
         jedi_forecast_model = self.config.jedi_forecast_model(None)
         generate_yaml_and_exit = self.config.generate_yaml_and_exit(False)
-        save_geovals = self.config.save_geovals()
+        save_geovals = self.config.save_geovals(False)
 
         # Set the observing system records path
         self.jedi_rendering.set_obs_records_path(self.config.observing_system_records_path(None))
@@ -161,7 +162,7 @@ class RunJediHofxExecutable(taskBase):
                 # -------------------
                 for observation in observations:
 
-                    self.logger.info('Combining GeoVaLs files for {observation}')
+                    self.logger.info(f'Combining GeoVaLs files for {observation}')
 
                     # List of GeoVaLs input files
                     input_files = f'{observation}-geovals.{window_begin}_*.nc4'
@@ -174,7 +175,8 @@ class RunJediHofxExecutable(taskBase):
 
                     # Assert that there are np files
                     self.logger.assert_abort(len(geovals_files) == np, f'Number of GeoVaLs' +
-                                             f' files does not match number of processors.')
+                                             f' files does not match number of processors:\n' +
+                                             f' np={np}, len(geovals_files) = {len(geovals_files)}')
 
                     # Write the concatenated dataset to a new file
                     combine_files_without_groups(self.logger, geovals_files, output_file, 'nlocs',
@@ -242,7 +244,13 @@ class RunJediHofxExecutable(taskBase):
 
     # ----------------------------------------------------------------------------------------------
 
-    def append_gomsaver(self, observations, jedi_config_dict, window_begin, mem=None):
+    def append_gomsaver(
+        self,
+        observations: list,
+        jedi_config_dict: dict,
+        window_begin: str,
+        mem: Optional[str] = None
+    ) -> None:
 
         # We may need to save the GeoVaLs for ensemble members. This will
         # prevent code repetition.

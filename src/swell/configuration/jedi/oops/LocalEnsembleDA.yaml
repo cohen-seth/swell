@@ -6,10 +6,15 @@ time window:
   end: '{{window_end_iso}}'
   bound to include: begin
 
+increment variables: [ua,va,t,delp,q,qi,ql,o3ppmv]
+
 background:
   TASKFILLbackground_ensemble
 
 observations:
+  get values:
+    TASKFILLgetvalues
+
   observers:
     SPECIALobservations
 

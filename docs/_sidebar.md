@@ -12,8 +12,9 @@
 
   - [Platforms](platforms/platforms.md)
   - **Discover**
-    - [Installing swell on SLES12](platforms/discover/installing_swell_discover_sles12.md)
-    - [Installing swell on SLES15](platforms/discover/installing_swell_discover_sles15.md)
+    - [Installing Swell on SLES12](platforms/discover/installing_swell_discover_sles12.md)
+    - [Installing Swell on SLES15](platforms/discover/installing_swell_discover_sles15.md)
+    - [Installing Swell using `uv` and `venv`](platforms/discover/installing_swell_uv_venv.md)
     - [Configuring `cylc`](platforms/discover/configuring_cylc_discover.md)
 
 - Practical Examples
@@ -32,6 +33,12 @@
 
   - [Task infrastructure](task_infrastructure.md)
   - [Tasks](tasks.md)
+
+- Code test before pull request
+
+  - [Code Tests](code_tests/code_tests.md)
+  - [Suite Tests](code_tests/suite_tests.md)
+
 
 - Governance
 
