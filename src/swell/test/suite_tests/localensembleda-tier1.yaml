@@ -3,26 +3,27 @@ jedi_build_method: use_existing
 model_components: ['geos_atmosphere']
 models:
   geos_atmosphere:
-    horizontal_resolution: 91
-    npx_proc: 4
-    npy_proc: 4
+    horizontal_resolution: 13
+    npx_proc: 2
+    npy_proc: 2
     cycle_times:
     - T00
 #    - T06
 #    - T12
 #    - T18
-    ensemble_num_members:  32
+    ensemble_num_members:  2
     skip_ensemble_hofx: true
     local_ensemble_solver: GETKF
     local_ensemble_use_linear_observer: true
     local_ensemble_save_posterior_mean: false
     local_ensemble_save_posterior_ensemble_increments: true
     ensmean_only: false
-    path_to_ensemble: /discover/nobackup/projects/gmao/advda/SwellTestData/letk/ensemble/91/Y%Y/M%m/D%d/H%H/geos*%Y%m%d_%H%M%Sz.nc4
+    path_to_ensemble: /discover/nobackup/projects/gmao/advda/SwellTestData/letk/ensemble/91/Y%Y/M%m/D%d/H%H/geos*%Y%m%d_%H%M%Sz.nc4    # c90
     observations:
-    - sondes
-    - amsua_aqua
-    - amsua_metop-b
+     - iasi_metop-b
+#    - sondes
+#    - amsua_aqua
+#    - amsua_metop-b
 #    - amsua_metop-c
 #    - amsua_n15
 #    - amsua_n18
