@@ -229,6 +229,23 @@ obs filters:
       channels: *mhs_n19_available_channels
       options:
         channels: *mhs_n19_available_channels
+# Surface Jacobian check
+  - filter: BlackList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *mhs_n19_available_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorSurfJacobianRad
+        channels: *mhs_n19_available_channels
+        options:
+          channels: *mhs_n19_available_channels
+          sensor: *Sensor_ID
+#         use_biasterm: true
+          test_biasterm: ObsBiasTerm
+          obserr_demisf: [0.015, 0.090, 0.060, 0.060, 0.750]
+          obserr_dtempf: [0.500, 6.000, 3.000, 6.000, 15.00]
 #Gross check
 - filter: Background Check
   filter variables:
