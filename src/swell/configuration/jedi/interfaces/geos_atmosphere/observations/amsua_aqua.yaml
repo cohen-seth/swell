@@ -147,7 +147,7 @@ obs post filters:
           sensor: *Sensor_ID
           use_biasterm: true
           test_biasterm: ObsBiasTerm
-          obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
+          obserr_demisf: [0.050, 0.100, 0.075, 0.100, 0.200]
           obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
 # Gross check
   - filter: Background Check
