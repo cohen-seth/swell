@@ -176,14 +176,14 @@ class GetObservations(taskBase):
                 # We assume fetch is required unless we are cycling VarBC
                 fetch_required = True
 
-                self.logger.info(f'Processing satellite bias file {target_sbccoef}')
+                self.logger.info(f'Processing satellite bias file {target_abccoef}')
                 fetch(date=background_time,
                       target_file=target_abccoef,
                       provider='gsi',
                       obs_type=observation,
                       type='bc',
                       experiment=obs_experiment,
-                      file_type='satbias')
+                      file_type='txt')
 
 
 #
