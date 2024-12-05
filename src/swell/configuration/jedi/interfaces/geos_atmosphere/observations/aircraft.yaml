@@ -21,9 +21,9 @@ obs bias:
     predictors:
     - name: constant
     - name: obsMetadataPredictor
-      variable: aircraftAscentRate
+      variable: instantaneousAltitudeRate
     - name: obsMetadataPredictor
-      variable: aircraftAscentRate
+      variable: instantaneousAltitudeRate
       order: 2
   covariance: # TODO: all of this section needs revisiting by experts, this is copy-paste from amsua yaml
     minimal required obs number: 20
