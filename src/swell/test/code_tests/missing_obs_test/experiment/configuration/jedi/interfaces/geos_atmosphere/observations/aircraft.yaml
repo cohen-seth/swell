@@ -93,14 +93,14 @@ obs post filters:
   assignments:
   - name: MetaData/stationIdentification
     value: 'KX130   '
-# Reassign any ascent predictor to zero where  MetaData/windUpward >50.
+# Reassign any ascent predictor to zero where  MetaData/instantaneousAltitudeRate >50.
 - filter: Variable Assignment
   where:
   - variable:
-      name: MetaData/windUpward
+      name: MetaData/instantaneousAltitudeRate
     minvalue: 50.
   assignments:
-  - name: MetaData/windUpward
+  - name: MetaData/instantaneousAltitudeRate
     value: 0.
 
 # ------------------
@@ -288,7 +288,7 @@ obs post filters:
         inflation factor: 8.0
         surface_obs: false
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
   defer to post: true
 
 # inflate error for tails with uninitialized bias coefficients (i.e. all coefficients equal to zero)
@@ -605,7 +605,7 @@ obs post filters:
         inflation factor: 4.0
         surface_obs: false
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
   defer to post: true
 
 # Error inflation based on pressure check
@@ -621,7 +621,7 @@ obs post filters:
         inflation factor: 4.0
         surface_obs: false
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
   defer to post: true
 
   # Gross Check
