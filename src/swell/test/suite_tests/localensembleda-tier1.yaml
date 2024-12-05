@@ -11,7 +11,7 @@ models:
 #    - T06
 #    - T12
 #    - T18
-    ensemble_num_members:  32
+    ensemble_num_members:  5
     skip_ensemble_hofx: true
     local_ensemble_solver: GETKF
     local_ensemble_use_linear_observer: true
@@ -21,38 +21,9 @@ models:
     path_to_ensemble: /discover/nobackup/projects/gmao/advda/SwellTestData/letk/ensemble/91/Y%Y/M%m/D%d/H%H/geos*%Y%m%d_%H%M%Sz.nc4
     observations:
     - aircraft
-    - airs_aqua
-    - amsr2_gcom-w1
-    - amsua_aqua
-    - amsua_metop-b
-    - amsua_metop-c
-    - amsua_n15
-    - amsua_n18
-    - amsua_n19
-    - atms_n20
-    - atms_npp
-    - avhrr3_metop-b
-    - avhrr3_n18
-    - avhrr3_n19
-    - cris-fsr_n20
-    - cris-fsr_npp
-    - gmi_gpm
-    - gps
-    - iasi_metop-b
-    - iasi_metop-c
-    - mhs_metop-b
-    - mhs_metop-c
-    - mhs_n19
-    - mls55_aura
-    - omi_aura
-    - ompsnm_npp
-    - pibal
-    - satwind
-    - scatwind
-    - sfcship
-    - sfc
     - sondes
-    - ssmis_f17
+    - gps
+    - amsua_metop-b
     background_experiment: x0048
     window_type: 3D
     clean_patterns:
