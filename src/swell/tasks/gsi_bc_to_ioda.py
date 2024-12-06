@@ -196,7 +196,9 @@ class GsiBcToIoda(taskBase):
             output_dict = {}
             output_dict['sensor'] = 'aircft'
             output_dict['output file'] = os.path.join(self.cycle_dir(), f'aircraft_abias_air.{background_time}.nc4')
-            output_dict['default predictors'] = default_predictors
+            output_dict['predictors'] = default_predictors
+            acftbias_converter_dict_output.append(output_dict)
+
 
             acftbias_converter_dict['output'] = acftbias_converter_dict_output
 
