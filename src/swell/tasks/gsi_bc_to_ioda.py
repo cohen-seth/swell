@@ -187,8 +187,8 @@ class GsiBcToIoda(taskBase):
         # Add the default predictors
             default_predictors = []
             default_predictors.append('constant')
-            default_predictors.append('aircraftAscentRate')
-            default_predictors.append('aircraftAscentRate_order_2')
+            default_predictors.append('instantaneousAltitudeRate')
+            default_predictors.append('instantaneousAltitudeRate_order_2')
 
             acftbias_converter_dict['default predictors'] = default_predictors
 
