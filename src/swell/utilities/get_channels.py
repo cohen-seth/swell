@@ -11,11 +11,14 @@ import yaml
 import os
 from datetime import datetime as dt
 from itertools import groupby
+from typing import Tuple, Optional
+
+from swell.utilities.logger import Logger
 
 # --------------------------------------------------------------------------------------------------
 
 
-def process_channel_lists(channel_list):
+def process_channel_lists(channel_list: list) -> list:
 
     '''
         Function processes list of elements in channel list
@@ -37,7 +40,7 @@ def process_channel_lists(channel_list):
 # --------------------------------------------------------------------------------------------------
 
 
-def create_range_string(avail_list):
+def create_range_string(avail_list: list) -> str:
     '''
         Function converts integer list into string of ranges
     '''
@@ -53,7 +56,7 @@ def create_range_string(avail_list):
 # --------------------------------------------------------------------------------------------------
 
 
-def get_channel_list(input_dict, dt_cycle_time):
+def get_channel_list(input_dict: dict, dt_cycle_time: dt) -> list:
 
     '''
         Function retrieves channel lists from dict loaded from a yaml file
@@ -68,7 +71,12 @@ def get_channel_list(input_dict, dt_cycle_time):
 # --------------------------------------------------------------------------------------------------
 
 
-def get_channels(path_to_observing_sys_yamls, observation, dt_cycle_time):
+def get_channels(
+    path_to_observing_sys_yamls: str,
+    observation: str,
+    dt_cycle_time: dt,
+    logger: Logger
+) -> Tuple[Optional[str], Optional[list[int]]]:
 
     '''
         Comparing available channels and active channels from the observing
@@ -86,6 +94,14 @@ def get_channels(path_to_observing_sys_yamls, observation, dt_cycle_time):
             available_channels = get_channel_list(data['available'], dt_cycle_time)
             active_channels = get_channel_list(data['active'], dt_cycle_time)
 
+        if available_channels is None:
+            logger.abort(f'Missing available channels for {observation}, '
+                         'Confirm that you are using the right version of GEOSmksi')
+
+        if active_channels is None:
+            logger.abort(f'Missing active channels for {observation}, '
+                         'Confirm that you are using the right version of GEOSmksi')
+
         available_channels_list = process_channel_lists(available_channels)
         available_range_string = create_range_string(available_channels_list)
         active_channels_list = process_channel_lists(active_channels)
@@ -97,3 +113,25 @@ def get_channels(path_to_observing_sys_yamls, observation, dt_cycle_time):
         return None, None
 
 # --------------------------------------------------------------------------------------------------
+
+
+def num_active_channels(
+    path_to_observing_sys_yamls: str,
+    observation: str,
+    dt_cycle_time: dt
+) -> Optional[int]:
+
+    # Retrieve available and active channels from records yaml
+    path_to_observing_sys_config = path_to_observing_sys_yamls + '/' + \
+        observation + '_channel_info.yaml'
+
+    if os.path.isfile(path_to_observing_sys_config):
+        with open(path_to_observing_sys_config, 'r') as file:
+            data = yaml.safe_load(file)
+            active_channels = get_channel_list(data['active'], dt_cycle_time)
+
+        active_channels_list = process_channel_lists(active_channels)
+        return len(active_channels_list)
+
+    else:
+        print('path_to_observing_sys_config undefined')

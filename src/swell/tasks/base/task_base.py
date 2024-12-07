@@ -15,13 +15,15 @@ import glob
 import importlib
 import os
 import time
+from datetime import datetime as dt
+from typing import Union, Optional
 
 # swell imports
 from swell.swell_path import get_swell_path
 from swell.utilities.case_switching import camel_case_to_snake_case, snake_case_to_camel_case
 from swell.utilities.config import Config
 from swell.utilities.data_assimilation_window_params import DataAssimilationWindowParams
-from swell.utilities.datetime import Datetime
+from swell.utilities.datetime_util import Datetime
 from swell.utilities.logger import Logger
 from swell.utilities.render_jedi_interface_files import JediConfigRendering
 from swell.utilities.geos import Geos
@@ -33,7 +35,14 @@ from swell.utilities.geos import Geos
 class taskBase(ABC):
 
     # Base class constructor
-    def __init__(self, config_input, datetime_input, model, task_name):
+    def __init__(
+        self,
+        config_input: str,
+        datetime_input: Optional[str],
+        model: str,
+        ensemblePacket: Optional[str],
+        task_name: str
+    ) -> None:
 
         # Create message logger
         # ---------------------
@@ -53,6 +62,10 @@ class taskBase(ABC):
         if datetime_input is not None:
             self.__datetime__ = Datetime(datetime_input)
 
+        # Keep copy of ensemblePacket
+        # ---------------------------
+        self.__ensemble_packet__ = ensemblePacket
+
         # Keep copy of model directive
         # ----------------------------
         self.__model__ = model
@@ -66,6 +79,10 @@ class taskBase(ABC):
         self.__experiment_root__ = self.config.__experiment_root__
         self.__experiment_id__ = self.config.__experiment_id__
         self.__platform__ = self.config.__platform__
+        self.__suite_to_run__ = self.config.__suite_to_run__
+
+        if datetime_input is not None:
+            self.__start_cycle_point__ = Datetime(self.config.__start_cycle_point__)
 
         # Save the model components
         # -------------------------
@@ -108,53 +125,58 @@ class taskBase(ABC):
     # Execute is the place where a task does its work. It's defined as abstract in the base class
     # in order to force the sub classes (tasks) to implement it.
     @abstractmethod
-    def execute(self):
+    def execute(self) -> None:
         pass
 
     # ----------------------------------------------------------------------------------------------
 
     # Method to get the experiment root
-    def experiment_root(self):
+    def experiment_root(self) -> str:
         return self.__experiment_root__
 
     # ----------------------------------------------------------------------------------------------
 
     # Method to get the experiment ID
-    def experiment_id(self):
+    def experiment_id(self) -> str:
         return self.__experiment_id__
 
     # ----------------------------------------------------------------------------------------------
 
     # Method to get the experiment directory
-    def experiment_path(self):
+    def experiment_path(self) -> str:
         return os.path.join(self.__experiment_root__, self.__experiment_id__)
 
     # ----------------------------------------------------------------------------------------------
 
     # Method to get the experiment ID
-    def platform(self):
+    def platform(self) -> str:
         return self.__platform__
 
     # ----------------------------------------------------------------------------------------------
 
     # Method to get the experiment configuration directory
-    def experiment_config_path(self):
+    def experiment_config_path(self) -> str:
         swell_exp_path = self.experiment_path()
         return os.path.join(swell_exp_path, 'configuration')
 
     # ----------------------------------------------------------------------------------------------
 
-    def get_model(self):
+    def get_ensemble_packet(self) -> Optional[str]:
+        return self.__ensemble_packet__
+
+    # ----------------------------------------------------------------------------------------------
+
+    def get_model(self) -> str:
         return self.__model__
 
     # ----------------------------------------------------------------------------------------------
 
-    def get_model_components(self):
+    def get_model_components(self) -> Union[str, list]:
         return self.__model_components__
 
     # ----------------------------------------------------------------------------------------------
 
-    def is_datetime_dependent(self):
+    def is_datetime_dependent(self) -> bool:
         if self.__datetime__ is None:
             return False
         else:
@@ -162,7 +184,7 @@ class taskBase(ABC):
 
     # ----------------------------------------------------------------------------------------------
 
-    def cycle_dir(self):
+    def cycle_dir(self) -> str:
 
         # Check that model is set
         self.logger.assert_abort(self.__model__ is not None, 'In get_cycle_dir but this ' +
@@ -177,7 +199,7 @@ class taskBase(ABC):
 
     # ----------------------------------------------------------------------------------------------
 
-    def forecast_dir(self, paths=[]):
+    def forecast_dir(self, paths: Union[str, list[str]] = []) -> Optional[str]:
 
         # Make sure forecast directory exists
         # -----------------------------------
@@ -201,24 +223,47 @@ class taskBase(ABC):
 
     # ----------------------------------------------------------------------------------------------
 
-    def cycle_time_dto(self):
+    def cycle_time_dto(self) -> dt:
 
         return self.__datetime__.dto()
 
     # ----------------------------------------------------------------------------------------------
 
-    def cycle_time(self):
+    def cycle_time(self) -> str:
 
         return self.__datetime__.string_iso()
 
     # ----------------------------------------------------------------------------------------------
+
+    def first_cycle_time(self) -> str:
+
+        return self.__start_cycle_point__.string_iso()
+
+    # ----------------------------------------------------------------------------------------------
+
+    def first_cycle_time_dto(self) -> dt:
+
+        return self.__start_cycle_point__.dto()
+
+# --------------------------------------------------------------------------------------------------
+
+    def suite_name(self):
+
+        return self.__suite_to_run__
 
 # --------------------------------------------------------------------------------------------------
 
 
 class taskFactory():
 
-    def create_task(self, task, config, datetime, model):
+    def create_task(
+        self,
+        task: str,
+        config: str,
+        datetime: Union[str, dt, None],
+        model: str,
+        ensemblePacket: Optional[str]
+    ) -> taskBase:
 
         # Convert camel case string to snake case
         task_lower = camel_case_to_snake_case(task)
@@ -227,12 +272,12 @@ class taskFactory():
         task_class = getattr(importlib.import_module('swell.tasks.'+task_lower), task)
 
         # Return task object
-        return task_class(config, datetime, model, task)
+        return task_class(config, datetime, model, ensemblePacket, task)
 
 
 # --------------------------------------------------------------------------------------------------
 
-def get_tasks():
+def get_tasks() -> list:
 
     # Path to tasks
     tasks_directory = os.path.join(get_swell_path(), 'tasks', '*.py')
@@ -253,12 +298,18 @@ def get_tasks():
 # --------------------------------------------------------------------------------------------------
 
 
-def task_wrapper(task, config, datetime, model):
+def task_wrapper(
+    task: str,
+    config: str,
+    datetime: Union[str, dt, None],
+    model: Optional[str],
+    ensemblePacket: Optional[str]
+) -> None:
 
     # Create the object
     constrc_start = time.perf_counter()
     creator = taskFactory()
-    task_object = creator.create_task(task, config, datetime, model)
+    task_object = creator.create_task(task, config, datetime, model, ensemblePacket)
     constrc_final = time.perf_counter()
     constrc_time = f'Constructed in {constrc_final - constrc_start:0.4f} seconds'
 

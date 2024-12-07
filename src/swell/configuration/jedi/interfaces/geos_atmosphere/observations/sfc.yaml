@@ -41,7 +41,7 @@ obs operator:
      - name: stationPressure
      da_psfc_scheme: GSI
      geovar_geomz: geopotential_height
-     geovar_sfc_geomz: surface_geometric_height
+     geovar_sfc_geomz: height_above_mean_sea_level_at_surface
      station_altitude: height
 
    # Specific humidity is using the lowest model level (identity)
@@ -172,7 +172,7 @@ obs post filters:
       name: ObsFunction/ObsErrorFactorSfcPressure
       options:
         geovar_geomz: geopotential_height
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
         station_altitude: height
 # assign TempObsErrorData/stationPressure <--- ObsErrorData before changing its Min and Max
 - filter: Variable Assignment
@@ -198,7 +198,7 @@ obs post filters:
     maxvalue: 100
   - variable:
       name: TempObsErrorData/stationPressure
-    is_defined:
+    value: is_valid
   defer to post: true
 # set ObsErrorData 300 Pa if it > 300 Pa.
 - filter: Perform Action
@@ -213,7 +213,7 @@ obs post filters:
     minvalue: 300
   - variable:
       name: TempObsErrorData/stationPressure
-    is_defined:
+    value: is_valid
   defer to post: true
 
 # Background check
@@ -280,7 +280,7 @@ obs post filters:
   where:
   - variable:
       name: TempObsErrorData/stationPressure
-    is_defined:
+    value: is_valid
   defer to post: true
 # Duplicate factor
 - filter: Perform Action

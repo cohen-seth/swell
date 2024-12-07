@@ -7,16 +7,18 @@
 
 # --------------------------------------------------------------------------------------------------
 
-from datetime import datetime
+import datetime
 import f90nml
 import glob
 import isodate
 import netCDF4
 import os
 import re
+from typing import Tuple, Optional, Union
 
 from swell.utilities.shell_commands import run_subprocess
-from swell.utilities.datetime import datetime_formats
+from swell.utilities.datetime_util import datetime_formats
+from swell.utilities.logger import Logger
 
 # --------------------------------------------------------------------------------------------------
 
@@ -25,12 +27,12 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def __init__(self, logger, forecast_dir):
+    def __init__(self, logger: Logger, forecast_dir: Optional[str]) -> None:
 
         '''
-        Intention with GEOS class is to not have any model dependent methods.
-        This way both forecast only and cycle DA tasks can benefit from the same
-        methods.
+        Intention with creating this GEOS class is to not have any model dependent
+        methods. This way, methods would be shared between the forecast-only and
+        cycling DA tasks.
         '''
 
         self.logger = logger
@@ -38,12 +40,16 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def adjacent_cycle(self, offset, return_date=False):
+    def adjacent_cycle(
+        self,
+        offset: str,
+        return_date: bool = False
+    ) -> Union[str, datetime.datetime]:
 
         # Basename consists of swell datetime and model
         # ---------------------------------------------
         dt_str = os.path.basename(os.path.dirname(self.forecast_dir))
-        dt_obj = datetime.strptime(dt_str, datetime_formats['directory_format'])
+        dt_obj = datetime.datetime.strptime(dt_str, datetime_formats['directory_format'])
 
         # Modify datetime by using date offset
         # ------------------------------------
@@ -64,7 +70,7 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def chem_rename(self, rcdict):
+    def chem_rename(self, rcdict: dict) -> None:
 
         # Some files are renamed according to bool. switches in GEOS_ChemGridComp.rc
         # -------------------------------------------------------------------------
@@ -93,23 +99,22 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def exec_python(self, script_src, script, input=''):
+    def exec_python(self, script_src: str, script: str, input: str = '') -> None:
 
         # Source g5_modules and execute py scripts in a new shell process then
         # return to the current one
         # Define the command to source the Bash script and run the Python command
         # -----------------------------------------------------------------------
         command = f'source {script_src}/g5_modules.sh \n' + \
-            f'cd {self.forecast_dir} \n' + \
             f'{script_src}/{script} {input}'
 
         # Containerized run of the GEOS build steps
         # -----------------------------------------
-        run_subprocess(self.logger, ['/bin/bash', '-c', command])
+        run_subprocess(self.logger, ['/bin/bash', '-c', command], cwd=self.forecast_dir)
 
     # ----------------------------------------------------------------------------------------------
 
-    def get_rst_time(self):
+    def get_rst_time(self) -> datetime.datetime:
 
         # Obtain time information from any of the rst files listed by glob
         # ----------------------------------------------------------------
@@ -132,7 +137,11 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def iso_to_time_str(self, iso_duration, half=False):
+    def iso_to_time_str(
+        self,
+        iso_duration: str,
+        half: bool = False
+    ) -> Tuple[str, int, datetime.timedelta]:
 
         # Parse the ISO duration string and get the total number of seconds
         # It is written to handle fcst_duration less than a day for now
@@ -141,8 +150,11 @@ class Geos():
         duration_seconds = duration.total_seconds()
 
         # RESTART is produced at the half of the forecast cycle
-        # -----------------------------------------------------
+        # We will also assume that the beginning of the DA window is half of the
+        # forecast cycle which is when we need the first checkpoint dumps.
+        # -----------------------------------------------------------------------
         if half:
+            duration = duration / 2
             duration_seconds = duration_seconds / 2
 
         # Calculate days in case of long forecast time
@@ -156,15 +168,14 @@ class Geos():
         minutes, seconds = divmod(remainder, 60)
         time_string = f'{int(hours):02d}{int(minutes):02d}{int(seconds):02d}'
 
-        return time_string, days
+        return time_string, days, duration
 
     # ----------------------------------------------------------------------------------------------
 
-    def linker(self, src, dst, dst_dir=None):
+    def linker(self, src: str, dst: str, dst_dir: str = None) -> None:
 
         # Link files from BC directories
         # ------------------------------
-
         if dst_dir is None:
             dst_dir = self.forecast_dir
 
@@ -174,6 +185,11 @@ class Geos():
         # ------------------------------
         if dst == '':
             dst = os.path.basename(src)
+
+        # Check if src file exists
+        # ------------------------
+        if not os.path.exists(src):
+            self.logger.abort(f'Source file does not exist: {src}')
 
         # Assures existing links will be unlinked
         # -----------------------------------
@@ -189,7 +205,7 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def parse_gcmrun(self, jfile):
+    def parse_gcmrun(self, jfile: str) -> dict:
 
         # Parse gcm_run.j line by line and snatch setenv variables. gcm_setup
         # creates gcm_run.j and handles platform dependencies.
@@ -227,7 +243,7 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def parse_rc(self, rcfile):
+    def parse_rc(self, rcfile: str) -> dict:
 
         # Parse AGCM.rc & CAP.rc line by line. It ignores comments and commented
         # out lines. Some values involve multiple ":" characters which required
@@ -276,7 +292,7 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def process_nml(self, cold_restart=False):
+    def process_nml(self, cold_restart: bool = False) -> None:
 
         # In gcm_run.j, fvcore_layout.rc is concatenated with input.nml
         # -------------------------------------------------------------
@@ -303,7 +319,7 @@ class Geos():
 
     # ----------------------------------------------------------------------------------------------
 
-    def rc_assign(self, rcdict, key_inquiry):
+    def rc_assign(self, rcdict: dict, key_inquiry: str) -> None:
 
         # Some of the gcm_run.j steps involve setting environment values using
         # .rc files. These files may or may not have some of the key values used
@@ -315,7 +331,7 @@ class Geos():
 
     # --------------------------------------------------------------------------------------------------
 
-    def rc_to_bool(self, rcdict):
+    def rc_to_bool(self, rcdict: dict) -> dict:
 
         # .rc files have switch values in .TRUE. or .FALSE. format, some might
         # have T and F.
@@ -354,7 +370,7 @@ class Geos():
 
     # --------------------------------------------------------------------------------------------------
 
-    def resub(self, filename, pattern, replacement):
+    def resub(self, filename: str, pattern: str, replacement: str) -> None:
 
         # Replacing string values involving wildcards
         # -------------------------------------------
@@ -367,5 +383,62 @@ class Geos():
 
         with open(filename, 'w') as out_file:
             out_file.write(modified_text)
+
+    # --------------------------------------------------------------------------------------------------
+
+    def states_generator(self,
+                         background_frequency: str,
+                         window_length: str,
+                         window_begin_iso: str,
+                         model: str = 'geos_marine',
+                         marine_models: list = []
+                         ) -> list:
+
+        states = []
+        self.logger.info('Generating states for model: '+model)
+        if model in ("geos_ocean", "geos_marine"):
+            states = self.marine_states(background_frequency, window_length, window_begin_iso,
+                                        marine_models)
+
+        return states
+
+    # --------------------------------------------------------------------------------------------------
+
+    def marine_states(self,
+                      background_frequency: str,
+                      window_length: str,
+                      window_begin_iso: str,
+                      marine_models: list
+                      ) -> list:
+
+        static_part = {"basename": "./", "read_from_file": 1}
+
+        # Calculate the number of states using background frequency and window length
+        number_of_states = int(isodate.parse_duration(window_length)
+                               / isodate.parse_duration(background_frequency)) + 1
+        self.logger.info('Number of states: ', str(number_of_states-1))
+
+        # Generate the list of states dictionary with date and marine filename entries.
+        # The date is calculated by adding the background frequency to the window begin date.
+        # The ocn_filename is calculated by adding the background frequency to the window begin date
+        states = []
+
+        # For FGAT and 4D-Var, the first state is the background state, hence we need to
+        # skip the first state in the loop by adding "-1" to the range function.
+        for i in range(1, number_of_states):
+            hours = int((isodate.parse_duration(background_frequency) * i).total_seconds() / 3600)
+            state_dto = isodate.parse_datetime(window_begin_iso) \
+                + isodate.parse_duration(background_frequency) * i
+            state = {
+                "date": state_dto.strftime(datetime_formats['iso_format']),
+                "ocn_filename": "ocn.fc." + window_begin_iso + "." + f"PT{hours}H" + ".nc"
+            }
+            if 'cice6' in marine_models:
+                state.update({"ice_filename": "ice.fc." + window_begin_iso + "." + f"PT{hours}H" +
+                              ".nc"})
+            state.update(static_part)
+            states.append(state)
+
+        return states
 
 # --------------------------------------------------------------------------------------------------

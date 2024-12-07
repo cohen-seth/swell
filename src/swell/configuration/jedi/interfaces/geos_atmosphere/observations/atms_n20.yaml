@@ -20,43 +20,44 @@ obs operator:
     CoefficientPath: '{{crtm_coeff_dir}}/'
   linear obs operator:
     Absorbers: [H2O,O3]
-    Surfaces: [Water_Temperature]
+    Surfaces: [Water_Temperature,Land_Temperature,Ice_Temperature,Snow_Temperature]
 
 obs bias:
   input file: '{{cycle_dir}}/atms_n20.{{background_time}}.satbias.nc4'
+  output file: '{{cycle_dir}}/atms_n20.{{window_begin}}.satbias.nc4'
   variables without bc: [brightnessTemperature]
   channels: 15
   variational bc:
     predictors:
     - name: constant
-    - name: cloud_liquid_water
+    - name: cloudWaterContent
       sensor: ATMS
       clwdif_ch238: 1
       clwdif_ch314: 2
-    - name: lapse_rate
+    - name: lapseRate
       order: 2
       tlapse: &atms_n20_tlapse '{{cycle_dir}}/atms_n20.{{background_time}}.tlapse.txt'
-    - name: lapse_rate
+    - name: lapseRate
       tlapse: *atms_n20_tlapse
-    - name: emissivity
-    - name: scan_angle
+    - name: emissivityJacobian
+    - name: sensorScanAngle
       order: 4
-    - name: scan_angle
+    - name: sensorScanAngle
       order: 3
-    - name: scan_angle
+    - name: sensorScanAngle
       order: 2
-    - name: scan_angle
+    - name: sensorScanAngle
   covariance:
     minimal required obs number: 20
     variance range: [1.0e-6, 10.0]
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: '{{cycle_dir}}/atms_n20.{{background_time}}.satbias.nc4'
+      input file: '{{cycle_dir}}/atms_n20.{{background_time}}.satbias_cov.nc4'
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: '{{cycle_dir}}/atms_n20.{{window_begin}}.satbias.nc4'
+    output file: '{{cycle_dir}}/atms_n20.{{window_begin}}.satbias_cov.nc4'
 
 obs prior filters:
 # Assign obs error
@@ -104,7 +105,7 @@ obs post filters:
       options:
         sensor: *Sensor_ID
         channels: *atms_n20_channels
-        test_biaspredictor: cloud_liquid_waterPredictor
+        test_biaspredictor: cloudWaterContentPredictor
     maxvalue: 0.0
     action:
       name: reject
@@ -210,11 +211,7 @@ obs post filters:
       channels: *atms_n20_channels
       options:
         channels: *atms_n20_channels
-        use_flag: [-1, -1, -1, -1,  1,
-                    1,  1,  1,  1,  1,
-                    1,  1,  1,  1,  1,
-                   -1,  1,  1,  1,  1,
-                    1,  1]
+        use_flag: *atms_n20_use_flag
     minvalue: 1.0e-12
     action:
       name: reject

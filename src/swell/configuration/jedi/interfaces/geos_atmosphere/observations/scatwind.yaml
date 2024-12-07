@@ -23,6 +23,19 @@ obs operator:
   hofx scaling field: SurfaceWindScalingHeight
   hofx scaling field group: DerivedVariables
 
+linear obs operator:
+
+  name: VertInterp
+  observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
+
+  # Use height vertical coordinate first
+  vertical coordinate: geopotential_height
+  observation vertical coordinate group: DerivedVariables
+  observation vertical coordinate: adjustedHeight
+  interpolation method: linear
+  hofx scaling field: SurfaceWindScalingHeight
+  hofx scaling field group: DerivedVariables
+
 obs prior filters:
 
 # Apply variable changes needed for rescaled height coordinate
@@ -101,7 +114,7 @@ obs post filters:
         variable: windEastward
         inflation factor: 4.0
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
 #
 - filter: BlackList
   filter variables:
@@ -118,7 +131,7 @@ obs post filters:
         variable: windNorthward
         inflation factor: 4.0
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
 #
 - filter: Bounds Check
   filter variables:

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def check_end_time(end_time):
+def check_end_time(end_time: str) -> str:
 
     ''' Checks end times for 24 hour strings and converts them to 18 '''
 
@@ -17,21 +17,24 @@ def check_end_time(end_time):
 
 class GSIRecordParser:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.instr_df = None
         self.return_df = None
         self.sat = None
         self.instr = None
 
-    def get_channel_list(self, start):
+    def get_channel_list(self, start: int) -> list:
         channel_list = []
         rows = self.instr_df.loc[self.instr_df["start"] == start]
-        [channel_list.extend(i) for i in rows["channels"].values]
+        for row_ch_list in rows["channels"].values:
+            ch_list = eval(row_ch_list)
+            channel_list.extend(ch_list)
+
         channel_list = list(set(channel_list))
         channel_list.sort(key=int)
         return channel_list
 
-    def run(self, instr_df):
+    def run(self, instr_df: pd.DataFrame) -> None:
 
         # Save instrument dataframe
         self.instr_df = instr_df
@@ -62,7 +65,7 @@ class GSIRecordParser:
             start_df = self.instr_df.loc[self.instr_df['start'] == main_start]
             if (len(start_df) == 1):
                 # Only one row to process
-                channel_list = start_df['channels'].values[0]
+                channel_list = eval(start_df['channels'].values[0])
                 comment = start_df['comments'].values[0]
                 self.update_return_df(main_start, main_end, channel_list, comment)
                 done.append(main_start)
@@ -115,7 +118,7 @@ class GSIRecordParser:
                                           channel_list, comment)
                     done.append(inner_start[inner_idx])
 
-    def update_return_df(self, start, end, channel_list, comment):
+    def update_return_df(self, start: str, end: str, channel_list: list, comment: str) -> None:
 
         # Fix end time if on the 24 hour mark
         end = check_end_time(end)
@@ -131,7 +134,7 @@ class GSIRecordParser:
 
         self.return_df = pd.concat([self.return_df, new_row], ignore_index=True)
 
-    def get_instr_df(self):
+    def get_instr_df(self) -> pd.DataFrame:
 
         ''' Returns the dataframe that the state machine generated! '''
 

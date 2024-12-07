@@ -16,6 +16,12 @@ obs operator:
   hofx scaling field: SurfaceWindScalingPressure
   hofx scaling field group: DerivedVariables
 
+linear obs operator:
+  name: VertInterp
+  observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
+  hofx scaling field: SurfaceWindScalingPressure
+  hofx scaling field group: DerivedVariables
+
 obs prior filters:
 
 # Apply variable changes needed for performing wind scaling
@@ -238,7 +244,7 @@ obs post filters:
   filter variables:
   - name: windEastward
   - name: windNorthward
-  reference: GeoVaLs/surface_pressure
+  reference: GeoVaLs/air_pressure_at_surface
   value: MetaData/pressure
   maxvalue: -11000
   where:
@@ -253,7 +259,7 @@ obs post filters:
   filter variables:
   - name: windEastward
   - name: windNorthward
-  reference: GeoVaLs/surface_pressure
+  reference: GeoVaLs/air_pressure_at_surface
   value: MetaData/pressure
   maxvalue: -20000
   where:
@@ -309,7 +315,7 @@ obs post filters:
         variable: windEastward
         inflation factor: 4
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
 
 - filter: BlackList
   filter variables:
@@ -326,7 +332,7 @@ obs post filters:
         variable: windNorthward
         inflation factor: 4
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
 
 # Gross Check
 - filter: Background Check

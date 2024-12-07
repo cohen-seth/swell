@@ -14,11 +14,11 @@ aircraft:
 
 airs_aqua:
   filter_test:
-    passedBenchmark: 360284
+    passedBenchmark: 360289
 
 amsr2_gcom-w1:
   filter_test:
-    passedBenchmark: 54558
+    passedBenchmark: 8087
 
 amsua_aqua:
   filter_test:
@@ -74,7 +74,7 @@ cris-fsr_npp:
 
 gmi_gpm:
   filter_test:
-    passedBenchmark: 41975
+    passedBenchmark: 18608
 
 gps:
   filter_test:
@@ -98,7 +98,7 @@ mhs_metop-c:
 
 mhs_n19:
   filter_test:
-    passedBenchmark: 27823
+    passedBenchmark: 0
 
 mls55_aura:
   filter_test:

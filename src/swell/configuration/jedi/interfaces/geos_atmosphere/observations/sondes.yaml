@@ -39,7 +39,7 @@ obs operator:
     - name: stationPressure
     da_psfc_scheme: GSI
     geovar_geomz: geopotential_height
-    geovar_sfc_geomz: surface_geometric_height
+    geovar_sfc_geomz: height_above_mean_sea_level_at_surface
     station_altitude: height
 
 linear obs operator:
@@ -127,7 +127,7 @@ obs post filters:
       name: ObsFunction/ObsErrorFactorSfcPressure
       options:
         geovar_geomz: geopotential_height
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
         station_altitude: height
 
 # Note: Obs Erorr should between [min ~ max] for gross error checks.
@@ -156,7 +156,7 @@ obs post filters:
     maxvalue: 100
   - variable:
       name: TempObsErrorData/stationPressure
-    is_defined:
+    value: is_valid
   defer to post: true
 # set ObsErrorData 300 Pa if it > 300 Pa.
 - filter: Perform Action
@@ -171,7 +171,7 @@ obs post filters:
     minvalue: 300
   - variable:
       name: TempObsErrorData/stationPressure
-    is_defined:
+    value: is_valid
   defer to post: true
 
 # Background  check
@@ -207,7 +207,7 @@ obs post filters:
   where:
   - variable:
       name: TempObsErrorData/stationPressure
-    is_defined:
+    value: is_valid
   defer to post: true
 # Duplicate factor
 - filter: Perform Action
@@ -254,12 +254,12 @@ obs post filters:
   action:
     name: inflate error
     inflation variable:
-      name: ObsErrorFactorPressureCheck@ObsFunction
+      name: ObsFunction/ObsErrorFactorPressureCheck
       options:
         variable: specificHumidity
         inflation factor: 8.0
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
   defer to post: true
 # assign TempObsErrorData/stationPressure <--- ObsErrorData
 - filter: Variable Assignment
@@ -353,7 +353,7 @@ obs post filters:
   where:
   - variable:
       name: GsiAdjustObsError/airTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 ## error inflation based on pressure check
 - filter: Perform Action
@@ -366,7 +366,7 @@ obs post filters:
       options:
         variable: airTemperature
         inflation factor: 8.0
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
   defer to post: true
 # assign TempObsErrorData/airTemperature  <--- ObsErrorData before changing its Min and Max
 - filter: Variable Assignment
@@ -392,7 +392,7 @@ obs post filters:
     maxvalue: 1.3
   - variable:
       name: TempObsErrorData/airTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 # set ObsErrorData 5.6 K if it > 5.6 K.
 - filter: Perform Action
@@ -407,7 +407,7 @@ obs post filters:
     minvalue: 5.6
   - variable:
       name: TempObsErrorData/airTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 # Screen data by PreUseFlag
 # PreUseFlag is assigned in reading programs in GSI.
@@ -453,7 +453,7 @@ obs post filters:
   where:
   - variable:
       name: TempObsErrorData/airTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 ## Duplicate factor
 - filter: Perform Action
@@ -535,7 +535,7 @@ obs post filters:
   where:
   - variable:
       name: GsiAdjustObsError/virtualTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 ## error inflation based on pressure check
 - filter: Perform Action
@@ -548,7 +548,7 @@ obs post filters:
       options:
         variable: virtualTemperature
         inflation factor: 8.0
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
   defer to post: true
 
 # assign TempObsErrorData/virtualTemperature  <--- ObsErrorData before changing its Min and Max
@@ -575,7 +575,7 @@ obs post filters:
     maxvalue: 1.3
   - variable:
       name: TempObsErrorData/virtualTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 # set ObsErrorData 5.6 K if it > 5.6 K.
 - filter: Perform Action
@@ -590,7 +590,7 @@ obs post filters:
     minvalue: 5.6
   - variable:
       name: TempObsErrorData/virtualTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 
 # Screen data by PreUseFlag
@@ -637,7 +637,7 @@ obs post filters:
   where:
   - variable:
       name: TempObsErrorData/virtualTemperature
-    is_defined:
+    value: is_valid
   defer to post: true
 ## Duplicate factor
 - filter: Perform Action
@@ -664,7 +664,7 @@ obs post filters:
   action:
     name: assign error
     error function:
-      name: ObsErrorModelStepwiseLinear@ObsFunction
+      name: ObsFunction/ObsErrorModelStepwiseLinear
       options:
         xvar:
           name: MetaData/pressure
@@ -705,7 +705,7 @@ obs post filters:
   where:
   - variable:
       name: GsiAdjustObsError/windEastward
-    is_defined:
+    value: is_valid
 - filter: Perform Action
   filter variables:
   - name: windNorthward
@@ -715,7 +715,7 @@ obs post filters:
   where:
   - variable:
       name: GsiAdjustObsError/windNorthward
-    is_defined:
+    value: is_valid
 - filter: Perform Action
   filter variables:
   - name: windEastward
@@ -731,7 +731,7 @@ obs post filters:
         variable: windEastward
         inflation factor: 4.0
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
 
 - filter: Perform Action
   filter variables:
@@ -748,7 +748,7 @@ obs post filters:
         variable: windNorthward
         inflation factor: 4.0
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: height_above_mean_sea_level_at_surface
 
 # Gross Check
 - filter: Background Check
@@ -828,7 +828,7 @@ obs post filters:
   action:
     name: inflate error
     inflation variable:
-      name: ObsErrorFactorDuplicateCheck@ObsFunction
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
       options:
         use_air_pressure: true
         variable: windEastward
@@ -843,7 +843,7 @@ obs post filters:
   action:
     name: inflate error
     inflation variable:
-      name: ObsErrorFactorDuplicateCheck@ObsFunction
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
       options:
         use_air_pressure: true
         variable: windNorthward

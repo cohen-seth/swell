@@ -10,6 +10,8 @@
 import os
 from swell.tasks.base.task_base import taskBase
 from r2d2 import store
+from swell.utilities.r2d2 import create_r2d2_config
+from swell.utilities.run_jedi_executables import check_obs
 
 # --------------------------------------------------------------------------------------------------
 
@@ -20,7 +22,7 @@ class SaveObsDiags(taskBase):
     Task to use R2D2 to save obs diag files from experiment to database
     """
 
-    def execute(self):
+    def execute(self) -> None:
 
         # Parse config
         # ------------
@@ -28,6 +30,7 @@ class SaveObsDiags(taskBase):
         crtm_coeff_dir = self.config.crtm_coeff_dir(None)
         observations = self.config.observations()
         window_offset = self.config.window_offset()
+        r2d2_local_path = self.config.r2d2_local_path()
 
         # Set the observing system records path
         self.jedi_rendering.set_obs_records_path(self.config.observing_system_records_path(None))
@@ -42,12 +45,22 @@ class SaveObsDiags(taskBase):
         self.jedi_rendering.add_key('crtm_coeff_dir', crtm_coeff_dir)
         self.jedi_rendering.add_key('window_begin', window_begin)
 
+        # Set R2D2 config file
+        # --------------------
+        create_r2d2_config(self.logger, self.platform(), self.cycle_dir(), r2d2_local_path)
+
         # Loop over observation operators
         # -------------------------------
         for observation in observations:
 
             # Load the observation dictionary
             observation_dict = self.jedi_rendering.render_interface_observations(observation)
+
+            # Check if observation was used
+            use_obs = check_obs(self.jedi_rendering.observing_system_records_path, observation,
+                                observation_dict, self.cycle_time_dto())
+            if not use_obs:
+                continue
 
             # Store observation files
             # -----------------------

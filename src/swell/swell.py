@@ -9,13 +9,14 @@
 
 
 import click
+from typing import Union, Optional, Literal
 
 from swell.deployment.platforms.platforms import get_platforms
 from swell.deployment.create_experiment import clone_config, create_experiment_directory
-from swell.deployment.create_experiment import prepare_config
 from swell.deployment.launch_experiment import launch_experiment
 from swell.tasks.base.task_base import task_wrapper, get_tasks
 from swell.test.test_driver import test_wrapper, valid_tests
+from swell.test.suite_tests.suite_tests import run_suite
 from swell.utilities.suite_utils import get_suites
 from swell.utilities.welcome_message import write_welcome_message
 from swell.utilities.scripts.utility_driver import get_utilities, utility_wrapper
@@ -25,14 +26,14 @@ from swell.utilities.scripts.utility_driver import get_utilities, utility_wrappe
 
 
 @click.group()
-def swell_driver():
+def swell_driver() -> None:
     """
     Welcome to swell!
 
     This is the top level driver for swell. It serves as a container for various commands
     related to experiment creation, launching, tasks, and utilities.
 
-    The normal process for createing and running an experiment is to issue:
+    The normal process for creating and running an experiment is to issue:
 
       swell create <suite_name>
 
@@ -73,6 +74,14 @@ datetime_help = 'Datetime to use for task execution. Format is yyyy-mm-ddThh:mm:
 
 model_help = 'Data assimilation system. I.e. the model being initialized by data assimilation.'
 
+ensemble_help = 'When handling ensemble workflows using a parallel strategy, ' + \
+                'specify which packet of ensemble members to consider.'
+
+slurm_help = """
+Customize SLURM directives, globally (e.g., account name), for specific tasks,
+or for task-model combinations.
+"""
+
 
 # --------------------------------------------------------------------------------------------------
 
@@ -81,11 +90,19 @@ model_help = 'Data assimilation system. I.e. the model being initialized by data
 @click.argument('suite', type=click.Choice(get_suites()))
 @click.option('-m', '--input_method', 'input_method', default='defaults',
               type=click.Choice(['defaults', 'cli']), help=input_method_help)
-@click.option('-p', '--platform', 'platform', default='nccs_discover',
+@click.option('-p', '--platform', 'platform', default='nccs_discover_sles15',
               type=click.Choice(get_platforms()), help=platform_help)
 @click.option('-o', '--override', 'override', default=None, help=override_help)
 @click.option('-a', '--advanced', 'advanced', default=False, help=advanced_help)
-def create(suite, input_method, platform, override, advanced):
+@click.option('-s', '--slurm', 'slurm', default=None, help=slurm_help)
+def create(
+    suite: str,
+    input_method: str,
+    platform: str,
+    override: Union[dict, str, None],
+    advanced: bool,
+    slurm: str
+) -> None:
     """
     Create a new experiment
 
@@ -95,11 +112,8 @@ def create(suite, input_method, platform, override, advanced):
         suite (str): Name of the suite you wish to run. \n
 
     """
-    # First create the configuration for the experiment.
-    experiment_dict_str = prepare_config(suite, input_method, platform, override, advanced)
-
     # Create the experiment directory
-    create_experiment_directory(experiment_dict_str)
+    create_experiment_directory(suite, input_method, platform, override, advanced, slurm)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -112,7 +126,13 @@ def create(suite, input_method, platform, override, advanced):
               type=click.Choice(['defaults', 'cli']), help=input_method_help)
 @click.option('-p', '--platform', 'platform', default=None, help=platform_help)
 @click.option('-a', '--advanced', 'advanced', default=False, help=advanced_help)
-def clone(configuration, experiment_id, input_method, platform, advanced):
+def clone(
+    configuration: str,
+    experiment_id: str,
+    input_method: str,
+    platform: str,
+    advanced: bool
+) -> None:
     """
     Clone an existing experiment
 
@@ -138,7 +158,11 @@ def clone(configuration, experiment_id, input_method, platform, advanced):
 @click.argument('suite_path')
 @click.option('-b', '--no-detach', 'no_detach', is_flag=True, default=False, help=no_detach_help)
 @click.option('-l', '--log_path', 'log_path', default=None, help=log_path_help)
-def launch(suite_path, no_detach, log_path):
+def launch(
+    suite_path: str,
+    no_detach: bool,
+    log_path: str
+) -> None:
     """
     Launch an experiment with the cylc workflow manager
 
@@ -159,7 +183,14 @@ def launch(suite_path, no_detach, log_path):
 @click.argument('config')
 @click.option('-d', '--datetime', 'datetime', default=None, help=datetime_help)
 @click.option('-m', '--model', 'model', default=None, help=model_help)
-def task(task, config, datetime, model):
+@click.option('-p', '--ensemblePacket', 'ensemblePacket', default=None, help=ensemble_help)
+def task(
+    task: str,
+    config: str,
+    datetime: Optional[str],
+    model: Optional[str],
+    ensemblePacket: Optional[str]
+) -> None:
     """
     Run a workflow task
 
@@ -170,7 +201,7 @@ def task(task, config, datetime, model):
         config (str): Path to the configuration file for the task.\n
 
     """
-    task_wrapper(task, config, datetime, model)
+    task_wrapper(task, config, datetime, model, ensemblePacket)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -178,7 +209,7 @@ def task(task, config, datetime, model):
 
 @swell_driver.command()
 @click.argument('utility', type=click.Choice(get_utilities()))
-def utility(utility):
+def utility(utility: str) -> None:
     """
     Run a utility script
 
@@ -196,7 +227,7 @@ def utility(utility):
 
 @swell_driver.command()
 @click.argument('test', type=click.Choice(valid_tests))
-def test(test):
+def test(test: str) -> None:
     """
     Run one of the test suites
 
@@ -212,7 +243,22 @@ def test(test):
 # --------------------------------------------------------------------------------------------------
 
 
-def main():
+@swell_driver.command()
+@click.argument('suite', type=click.Choice(("hofx", "3dvar", "ufo_testing")))
+def t1test(suite: Literal["hofx", "3dvar", "ufo_testing"]) -> None:
+    """
+    Run a particular swell suite from the tier 1 tests.
+
+    Arguments:
+        suite (str): Name of the suite to run (e.g., hofx, 3dvar, ufo_testing)
+    """
+    run_suite(suite)
+
+
+# --------------------------------------------------------------------------------------------------
+
+
+def main() -> None:
     """
     Main Function
 

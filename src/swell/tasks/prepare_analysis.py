@@ -11,6 +11,7 @@ import glob
 import netCDF4 as nc
 import os
 import shutil
+from typing import Union
 
 from swell.utilities.shell_commands import run_subprocess
 from swell.tasks.base.task_base import taskBase
@@ -22,7 +23,7 @@ class PrepareAnalysis(taskBase):
 
     # --------------------------------------------------------------------------------------------------
 
-    def execute(self):
+    def execute(self) -> None:
 
         """
         Updates variables in restart files with analysis variables.
@@ -90,7 +91,7 @@ class PrepareAnalysis(taskBase):
 
     # ----------------------------------------------------------------------------------------
 
-    def at_cycledir(self, paths=[]):
+    def at_cycledir(self, paths: Union[list, str] = []) -> str:
 
         # Ensure what we have is a list (paths should be a list)
         # ------------------------------------------------------
@@ -104,10 +105,10 @@ class PrepareAnalysis(taskBase):
 
     # --------------------------------------------------------------------------------------------------
 
-    def mom6_increment(self, f_rst, ana_path, incr_path):
+    def mom6_increment(self, f_rst: str, ana_path: str, incr_path: str) -> None:
 
-        # This method prepares MOM6 increment file for IAU during next cycle
-        # SOCA increment does not contain layer thickness (h) variable. Hence
+        # This method prepares MOM6 increment file for IAU during next cycle.
+        # SOCA increment does not contain layer thickness (h) variable. Hence,
         # SOCA incr needs to be combined with the h variable from
         # the SOCA analysis file.
 
@@ -133,16 +134,7 @@ class PrepareAnalysis(taskBase):
 
     # --------------------------------------------------------------------------------------------------
 
-    def replace_ice(self, f_rst):
-
-        '''
-        placeholder for cice analysis
-        '''
-        pass
-
-    # --------------------------------------------------------------------------------------------------
-
-    def replace_ocn(self, f_rst, ana_pth):
+    def replace_ocn(self, f_rst: str, ana_pth: str) -> None:
 
         # TODO: This will fail for multiple restart files and no IAU
         # ----------------------------------------------------------
