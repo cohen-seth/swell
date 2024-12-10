@@ -140,8 +140,8 @@ class PrepareExperimentConfigAndSuite:
             else:
                 # In this case the question is both a suite question and a task question.
                 # To avoid any confusion, only the tasks key is taken from the task dictionary
-                question_dictionary[key]['tasks'] = val['tasks']
-
+                question_dictionary[key]['tasks'] = val['tasks']        
+        
         # Iterate over the question_dictionary dictionary and remove keys not associated with this
         # suite. Note that there might be questions that are not needed by the suite but could still
         # be needed by the tasks in the suite. These are not removed but the suite key is removed.
@@ -161,6 +161,7 @@ class PrepareExperimentConfigAndSuite:
                         # Question not needed by suite but might be needed by tasks.
                         # Reduce to a task only question.
                         val.pop('suites')
+                       
         for key in keys_to_remove:
             del question_dictionary[key]
 
@@ -309,6 +310,24 @@ class PrepareExperimentConfigAndSuite:
             else:
                 self.logger.abort(f'Override must be a dictionary or a path to a yaml file.')
 
+
+###        print('keys_to_remove', keys_to_remove)
+#        test_file = os.path.join(get_swell_path(), 'test', 'suite_tests','t1.yaml')
+#        with open(test_file, 'w') as f:
+#            yaml.dump(override_dict, f, sort_keys=False)
+#
+#        test_file = os.path.join(get_swell_path(), 'test', 'suite_tests','t2.yaml')
+#        with open(test_file, 'w') as f:
+#            yaml.dump(self.question_dictionary_model_ind, f, sort_keys=False)
+#
+#        test_file = os.path.join(get_swell_path(), 'test', 'suite_tests','t3.yaml')
+#        with open(test_file, 'w') as f:
+#            yaml.dump(self.question_dictionary_model_dep, f, sort_keys=False)            
+#
+##        print('nail')
+##        exit()
+
+
         # In this case the user is sending in a dictionary that looks like the experiment dictionary
         # that they will ultimately be looking at. This means the dictionary does not contain
         # default_value or options and the override cannot be performed.
@@ -316,6 +335,7 @@ class PrepareExperimentConfigAndSuite:
         # Iterate over the model_ind dictionary and override
         # --------------------------------------------------
         for key, val in self.question_dictionary_model_ind.items():
+##            print('key in model_ind', key)
             if key in override_dict:
                 val['default_value'] = override_dict[key]
 
@@ -327,6 +347,7 @@ class PrepareExperimentConfigAndSuite:
                     if model in override_dict['models']:
                         if key in override_dict['models'][model]:
                             val['default_value'] = override_dict['models'][model][key]
+
 
     # ----------------------------------------------------------------------------------------------
 

@@ -10,6 +10,7 @@
 
 import os
 import yaml
+import sys
 
 from swell.swell_path import get_swell_path
 from swell.tasks.base.task_base import taskBase
@@ -103,6 +104,19 @@ class RunJediLocalEnsembleDaExecutable(taskBase):
                                     self.config.vertical_localization_function())
 
         # Driver
+
+        print('self.config.local_ensemble_save_posterior_mean()', self.config.local_ensemble_save_posterior_mean())
+        print('self.config', self.config)
+        print('local_ensemble_save_posterior_mean',
+                                    self.config.local_ensemble_save_posterior_mean())
+        print('local_ensemble_save_posterior_ensemble',
+                                    self.config.local_ensemble_save_posterior_ensemble())
+        print('local_ensemble_save_posterior_mean_increment',
+                                    self.config.local_ensemble_save_posterior_mean_increment())
+        print('local_ensemble_save_posterior_ensemble_increments',
+                                    self.config.local_ensemble_save_posterior_ensemble_increments())
+
+
         self.jedi_rendering.add_key('local_ensemble_solver', self.config.local_ensemble_solver())
         self.jedi_rendering.add_key('local_ensemble_inflation_rtps',
                                     self.config.local_ensemble_inflation_rtps())
@@ -126,13 +140,18 @@ class RunJediLocalEnsembleDaExecutable(taskBase):
                                     self.config.local_ensemble_use_linear_observer())
         self.jedi_rendering.add_key('skip_ensemble_hofx', self.config.skip_ensemble_hofx())
 
-        # Prevent both 'local_ensemble_save_posterior_mean' and
-        # 'local_ensemble_save_posterior_ensemble' from being true
-        # --------------------------------------------------------
-        if not self.config.local_ensemble_save_posterior_mean() ^ \
-           self.config.local_ensemble_save_posterior_ensemble():
-            raise ValueError("Only one of 'local_ensemble_save_posterior_mean' and\
-            'local_ensemble_save_posterior_ensemble' may be true at once!")
+
+
+        print (' self.jedi_rendering =',  self.jedi_rendering)
+        
+#        # Prevent both 'local_ensemble_save_posterior_mean' and
+#        # 'local_ensemble_save_posterior_ensemble' from being true
+#        # --------------------------------------------------------
+#        if not self.config.local_ensemble_save_posterior_mean() ^ \
+#           self.config.local_ensemble_save_posterior_ensemble():
+#            raise ValueError("Only one of 'local_ensemble_save_posterior_mean' and\
+#            'local_ensemble_save_posterior_ensemble' may be true at once!")
+
 
         # Jedi configuration file
         # -----------------------
@@ -146,6 +165,9 @@ class RunJediLocalEnsembleDaExecutable(taskBase):
         # ----------------------------------------------------
         jedi_config_dict = self.jedi_rendering.render_oops_file('LocalEnsembleDA')
 
+        print('jedi_config_dict = ', jedi_config_dict)
+        
+        
         # Perform complete template rendering
         # -----------------------------------
         jedi_dictionary_iterator(jedi_config_dict, self.jedi_rendering, window_type, observations,
@@ -185,6 +207,11 @@ class RunJediLocalEnsembleDaExecutable(taskBase):
                 observer.update({'obs localizations': localization})
                 observer['obs space'].update(
                     {'distribution': {'name': 'Halo', 'halo size': 5000.e3}})
+
+        print ("jedi_config_dict['driver']", jedi_config_dict['driver'])
+#        for j in jedi_config_dict['driver']:
+
+
 
         # Write the expanded dictionary to YAML file
         # ------------------------------------------

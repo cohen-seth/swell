@@ -93,6 +93,15 @@ def prepare_config(
     # Ask questions as the suite gets configured
     # ------------------------------------------
     experiment_dict, comment_dict = prepare_config_and_suite.ask_questions_and_configure_suite()
+
+
+#    print(' experiment_dict',  experiment_dict)
+#    print(' comment_dict',  comment_dict)
+
+#    print('nail: exit')
+#    exit()
+   
+    
     # Add the datetime to the dictionary
     # ----------------------------------
     experiment_dict['datetime_created'] = datetime.datetime.today().strftime("%Y%m%d_%H%M%SZ")
