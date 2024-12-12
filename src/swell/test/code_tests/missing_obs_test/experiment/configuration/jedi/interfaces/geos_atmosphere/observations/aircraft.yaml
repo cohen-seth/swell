@@ -26,14 +26,15 @@ obs bias:
       variable: instantaneousAltitudeRate
       order: 2
   covariance: # TODO: all of this section needs revisiting by experts, this is copy-paste from amsua yaml
-    minimal required obs number: 20
-    variance range: [1.0e-6, 10.0]
+# work out separate specifications per predictor, needs more modification
+    minimal required obs number: 3
+    variance range: [1.0e-6, 1.0]
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: Data/ufo/testinput_tier_1/aircraft_bias_20210731T18Z.nc4
+      input file: '{{cycle_dir}}/aircraft_abias_air.{{window_begin}}.nc4'
       inflation:
-        ratio: 1.1
+        ratio: 1.005
         ratio for small dataset: 2.0
 
 obs operator:
