@@ -110,19 +110,6 @@ obs filters:
   filter variables:
   - name: brightnessTemperature
     channels: *gmi_gpm_available_channels
-  where:
-  - variable:
-      name: MetaData/latitude
-    minvalue: -20.0
-    maxvalue: 0.0
-  - variable:
-      name: MetaData/longitude
-    minvalue: 25.0
-    maxvalue: 40.0
-- filter: BlackList
-  filter variables:
-  - name: brightnessTemperature
-    channels: *gmi_gpm_available_channels
   action:        
     name: inflate error  
     inflation variable:
@@ -135,6 +122,19 @@ obs filters:
         test_biasterm: ObsBiasTerm
         obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
         obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
+- filter: BlackList
+  filter variables:
+  - name: brightnessTemperature
+    channels: *gmi_gpm_available_channels
+  where:
+  - variable:
+      name: MetaData/latitude
+    minvalue: -20.0
+    maxvalue: 0.0
+  - variable:
+      name: MetaData/longitude
+    minvalue: 25.0
+    maxvalue: 40.0
 # Save CLW retrievals from ObsValue
 - filter: Variable Assignment
   assignments:
