@@ -189,6 +189,22 @@ obs filters:
         err1:  [  5.0,  5.0,  5.0,  5.0,  5.0, 18.5,
                  20.0, 40.0, 20.0, 25.0, 30.0, 30.0,
                  30.0, 20.0]
+- filter: BlackList
+  filter variables:
+  - name: brightnessTemperature
+    channels: *amsr2_gcom-w1_available_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorSurfJacobianRad
+      channels: *amsr2_gcom-w1_available_channels
+      options:
+        channels: *amsr2_gcom-w1_available_channels
+        sensor: *Sensor_ID
+        use_biasterm: true
+        test_biasterm: ObsBiasTerm
+        obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
+        obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
 - filter: Background Check
   apply at iterations: 0, 1
   filter variables:

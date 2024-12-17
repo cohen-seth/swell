@@ -119,6 +119,22 @@ obs filters:
       name: MetaData/longitude
     minvalue: 25.0
     maxvalue: 40.0
+- filter: BlackList
+  filter variables:
+  - name: brightnessTemperature
+    channels: *gmi_gpm_available_channels
+  action:        
+    name: inflate error  
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorSurfJacobianRad
+      channels: *gmi_gpm_available_channels
+      options:
+        channels: *gmi_gpm_available_channels
+        sensor: *Sensor_ID
+        use_biasterm: true
+        test_biasterm: ObsBiasTerm
+        obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
+        obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
 # Save CLW retrievals from ObsValue
 - filter: Variable Assignment
   assignments:
