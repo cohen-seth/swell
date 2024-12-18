@@ -180,11 +180,11 @@ class GsiBcToIoda(taskBase):
         # -------------------------------------------------------
         if 'aircraft' in observations:
 
-        # Create dictionary that will be passed to converter
+            # Create dictionary that will be passed to converter
             acftbias_converter_dict = {}
-        # Add the files
+            # Add the files
             acftbias_converter_dict['input coeff file'] = bc_files[acftbias_file_index]
-        # Add the default predictors
+            # Add the default predictors
             default_predictors = []
             default_predictors.append('constant')
             default_predictors.append('instantaneousAltitudeRate')
@@ -195,23 +195,20 @@ class GsiBcToIoda(taskBase):
             acftbias_converter_dict_output = []
             output_dict = {}
             output_dict['sensor'] = 'aircft'
-            output_dict['output file'] = os.path.join(self.cycle_dir(), f'aircraft_abias_air.{background_time}.nc4')
+            output_dict['output file'] = os.path.join(self.cycle_dir(),
+                             f'aircraft_abias_air.{background_time}.nc4')
             output_dict['predictors'] = default_predictors
             acftbias_converter_dict_output.append(output_dict)
-
 
             acftbias_converter_dict['output'] = acftbias_converter_dict_output
 
             acftbias_converter_yaml = os.path.join(gsi_bc_dir, 'acftbias.yaml')
             write_dict_to_yaml(acftbias_converter_dict, acftbias_converter_yaml)
 
-        # Run IODA acftbias converter
-            acftbias_converter_exe = os.path.join(self.experiment_path(), 'jedi_bundle', 'build', 'bin',
-                                             'acftbias2ioda.x')
+            # Run IODA acftbias converter
+            acftbias_converter_exe = os.path.join(self.experiment_path(), 'jedi_bundle',
+                                             'build', 'bin', 'acftbias2ioda.x')
 
             run_track_log_subprocess(self.logger, [acftbias_converter_exe, acftbias_converter_yaml])
-
-
-
 
 # --------------------------------------------------------------------------------------------------
