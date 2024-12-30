@@ -196,7 +196,7 @@ class GsiBcToIoda(taskBase):
             output_dict = {}
             output_dict['sensor'] = 'aircft'
             output_dict['output file'] = os.path.join(self.cycle_dir(),
-                                                 f'aircraft_abias_air.{background_time}.nc4')
+                                                     f'aircraft_abias_air.{background_time}.nc4')
             output_dict['predictors'] = default_predictors
             acftbias_converter_dict_output.append(output_dict)
 
@@ -207,7 +207,7 @@ class GsiBcToIoda(taskBase):
 
             # Run IODA acftbias converter
             acftbias_converter_exe = os.path.join(self.experiment_path(), 'jedi_bundle',
-                                                 'build', 'bin', 'acftbias2ioda.x')
+                                                     'build', 'bin', 'acftbias2ioda.x')
 
             run_track_log_subprocess(self.logger, [acftbias_converter_exe, acftbias_converter_yaml])
 
