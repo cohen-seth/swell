@@ -11,6 +11,8 @@
 import copy
 import os
 import yaml
+import importlib
+from dataclasses import asdict
 from typing import Union, Tuple, Optional
 
 from swell.swell_path import get_swell_path
@@ -60,6 +62,7 @@ class PrepareExperimentConfigAndSuite:
         # Store local copy of the inputs
         self.logger = logger
         self.suite = suite
+        self.suite_ind = ('_' if suite[0].isdigit() else '') + suite
         self.platform = platform
         self.override = override
 
@@ -82,6 +85,10 @@ class PrepareExperimentConfigAndSuite:
         suite_file = os.path.join(get_swell_path(), 'suites', self.suite, 'flow.cylc')
         with open(suite_file, 'r') as suite_file_open:
             self.suite_str = suite_file_open.read()
+
+        # Get a list of model-independent and dependent questions
+        self.model_ind_tasks = self.get_suite_task_list_model_ind(self.suite_str)
+        self.model_dep_tasks = self.get_suite_task_list_model_dep(self.suite_str)
 
         # Perform the assembly of the dictionaries that contain all the questions that can possibly
         # be asked. This
@@ -122,15 +129,41 @@ class PrepareExperimentConfigAndSuite:
             prompt: ...
         """
 
-        # Read suite questions into a dictionary
-        suite_questions_file = os.path.join(get_swell_path(), 'suites', 'suite_questions.yaml')
-        with open(suite_questions_file, 'r') as ymlfile:
-            question_dictionary = yaml.safe_load(ymlfile)
+        # Create a dictionary of all suite questions
+        question_dictionary = {}
 
-        # Read task questions into a dictionary
-        task_questions_file = os.path.join(get_swell_path(), 'tasks', 'task_questions.yaml')
-        with open(task_questions_file, 'r') as ymlfile:
-            question_dictionary_tasks = yaml.safe_load(ymlfile)
+        question_list_module = importlib.import_module('swell.suites.suite_question_list')
+        suite_question_list = getattr(question_list_module, 'all_suites').get('questions')
+
+        if hasattr(question_list_module, self.suite_ind):
+            suite_question_list.extend(
+                    getattr(question_list_module, self.suite_ind).get('questions'))
+
+        if suite_question_list is not None:
+            for question in suite_question_list:
+                question_obj = getattr(importlib.import_module(
+                    'swell.suites.suite_questions'), question)
+                question_dictionary[question] = asdict(question_obj)
+
+        # Create a dictionary of all task questions for tasks needed by the suite
+        question_dictionary_tasks = {}
+
+        # Create a dictionary associating each task with its list of questions
+        self.questions_per_task = {}
+
+        for task in self.model_ind_tasks + self.model_dep_tasks[1]:
+            question_list_module = importlib.import_module('swell.tasks.task_question_list')
+            if hasattr(question_list_module, task):
+                task_question_list = getattr(question_list_module, task).get('questions')
+                if task_question_list is not None:
+                    for question in task_question_list:
+                        question_obj = getattr(importlib.import_module(
+                            'swell.tasks.task_questions'), question)
+                        question_dictionary_tasks[question] = asdict(question_obj)
+            else:
+                task_question_list = []
+
+            self.questions_per_task[task] = task_question_list
 
         # Loop through question_dictionary_tasks. If the key does not already exist add to the
         # question_dictionary. If the key does exist then only add the tasks key to the existing
@@ -138,32 +171,6 @@ class PrepareExperimentConfigAndSuite:
         for key, val in question_dictionary_tasks.items():
             if key not in question_dictionary.keys():
                 question_dictionary[key] = val
-            else:
-                # In this case the question is both a suite question and a task question.
-                # To avoid any confusion, only the tasks key is taken from the task dictionary
-                question_dictionary[key]['tasks'] = val['tasks']
-
-        # Iterate over the question_dictionary dictionary and remove keys not associated with this
-        # suite. Note that there might be questions that are not needed by the suite but could still
-        # be needed by the tasks in the suite. These are not removed but the suite key is removed.
-        # Note also that at this point we do not know which tasks will actually be needed so we
-        # can only remove questions that are known not to be needed by the suite.
-        keys_to_remove = []
-        for key, val in question_dictionary.items():
-            if 'suites' in val:
-                # If this suite question needed then skip to the next question
-                if val['suites'] == ['all'] or self.suite in val['suites']:
-                    continue
-                else:
-                    if 'tasks' not in val:
-                        # Question not needed by suite and not a task question: remove
-                        keys_to_remove.append(key)
-                    else:
-                        # Question not needed by suite but might be needed by tasks.
-                        # Reduce to a task only question.
-                        val.pop('suites')
-        for key in keys_to_remove:
-            del question_dictionary[key]
 
         # At this point we can check to see if this is a suite that requires model components
         self.suite_needs_model_components = True
@@ -177,7 +184,7 @@ class PrepareExperimentConfigAndSuite:
         # and questions not required by the suite
         keys_to_remove = []
         for key, val in question_dictionary_model_ind.items():
-            if 'models' in val.keys():
+            if val['models'] is not None:
                 keys_to_remove.append(key)
 
         # Cycle times can be a special case that is needed even when models are not. Though if they
@@ -211,7 +218,7 @@ class PrepareExperimentConfigAndSuite:
         # and questions not required by the suite
         keys_to_remove = []
         for key, val in question_dictionary_model_dep.items():
-            if 'models' not in val.keys():
+            if val['models'] is None:
                 keys_to_remove.append(key)
         for key in keys_to_remove:
             del question_dictionary_model_dep[key]
@@ -225,7 +232,7 @@ class PrepareExperimentConfigAndSuite:
         for model in self.possible_model_components:
             keys_to_remove = []
             for key, val in self.question_dictionary_model_dep[model].items():
-                if val['models'] != ['all'] and model not in val['models']:
+                if val['models'] != ['all_models'] and model not in val['models']:
                     keys_to_remove.append(key)  # Remove if not needed by this model
 
             for key in keys_to_remove:
@@ -381,7 +388,7 @@ class PrepareExperimentConfigAndSuite:
 
             # Ask only the suite questions first
             # ----------------------------------
-            if 'suites' in self.question_dictionary_model_ind[question_key]:
+            if self.question_dictionary_model_ind[question_key]['question_type'] == 'suite':
 
                 # Ask the question
                 self.ask_a_question(self.question_dictionary_model_ind, question_key)
@@ -400,13 +407,10 @@ class PrepareExperimentConfigAndSuite:
 
             # Ask the task questions
             # ----------------------
-            if 'suites' not in self.question_dictionary_model_ind[question_key]:
+            if self.question_dictionary_model_ind[question_key]['question_type'] != 'suite':
 
-                # Get list of tasks for the question
-                question_tasks = self.question_dictionary_model_ind[question_key]['tasks']
-
-                # Check whether any of model_ind_tasks are in question_tasks
-                if any(elem in question_tasks for elem in model_ind_tasks):
+                # Check if the question is associated with any model independent tasks
+                if any(question_key in self.questions_per_task[task] for task in model_ind_tasks):
 
                     # Ask the question
                     self.ask_a_question(self.question_dictionary_model_ind, question_key)
@@ -432,7 +436,7 @@ class PrepareExperimentConfigAndSuite:
             for question_key in model_dict:
 
                 # Ask only the suite questions first
-                if 'suites' in model_dict[question_key]:
+                if model_dict[question_key]['question_type'] == 'suite':
 
                     # Ask the question
                     self.ask_a_question(model_dict, question_key, model)
@@ -456,13 +460,10 @@ class PrepareExperimentConfigAndSuite:
         # -----------------------------------------------------------------------
         for question_key in self.question_dictionary_model_ind:
 
-            if 'tasks' in self.question_dictionary_model_ind[question_key]:
+            if self.question_dictionary_model_ind[question_key]['question_type'] == 'task':
 
-                # Get list of tasks for the question
-                question_tasks = self.question_dictionary_model_ind[question_key]['tasks']
-
-                # Check whether any of model_dep_tasks are in question_tasks
-                if any(elem in question_tasks for elem in all_tasks):
+                # Check whether the question is associated with any model dependent tasks
+                if any(question_key in self.questions_per_task[task] for task in all_tasks):
 
                     # Ask the question
                     self.ask_a_question(self.question_dictionary_model_ind, question_key)
@@ -477,14 +478,11 @@ class PrepareExperimentConfigAndSuite:
 
                 # Ask only the task questions first
                 # ----------------------------------
-                if 'suites' not in self.question_dictionary_model_dep[model][question_key]:
-
-                    # Get list of tasks for the question
-                    question_tasks = \
-                        self.question_dictionary_model_dep[model][question_key]['tasks']
+                if self.question_dictionary_model_dep[model][question_key] != 'task':
 
                     # Check whether any of model_dep_tasks are in question_tasks
-                    if any(elem in question_tasks for elem in model_dep_tasks[model]):
+                    if any(question_key in self.questions_per_task[task]
+                           for task in model_dep_tasks[model]):
 
                         # Ask the question
                         self.ask_a_question(self.question_dictionary_model_dep[model], question_key,
@@ -522,22 +520,23 @@ class PrepareExperimentConfigAndSuite:
                     f"Configuration for the {model} model component."
 
         # Check the dependency chain for the question
-        if 'depends' in qd:
+        if qd['depends'] is not None:
+            for key, val in qd['depends'].items():
 
-            # Check is dependency has been asked
-            if qd['depends']['key'] not in self.experiment_dict:
+                # Check is dependency has been asked
+                if key not in self.experiment_dict:
 
-                # Iteratively ask the dependent question
-                self.ask_a_question(full_question_dictionary, qd['depends']['key'], model)
+                    # Iteratively ask the dependent question
+                    self.ask_a_question(full_question_dictionary, key, model)
 
-            # Check that answer for dependency matches the required value
-            if model is None:
-                if self.experiment_dict[qd['depends']['key']] != qd['depends']['value']:
-                    ask_question = False
-            else:
-                prev = self.experiment_dict['models'][model][qd['depends']['key']]
-                if prev != qd['depends']['value']:
-                    ask_question = False
+                # Check that answer for dependency matches the required value
+                if model is None:
+                    if self.experiment_dict[key] != val:
+                        ask_question = False
+                else:
+                    prev = self.experiment_dict['models'][model][key]
+                    if prev != val:
+                        ask_question = False
 
         # Ask the question using the selected client
         if ask_question:
