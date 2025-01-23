@@ -26,6 +26,7 @@ from swell.utilities.logger import Logger
 
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 # --------------------------------------------------------------------------------------------------
@@ -35,16 +36,28 @@ class SwellQuestion:
     """Basic dataclass for defining Swell questions for suites and tasks"""
     name: str
     dtype: str
-    question_type: str
     default_value: str
     prompt: str
-    depends: dict = None
-    models: list = None
+    question_type: str = None
+    depends: Optional[dict] = None
+    models: Optional[list] = None
     ask_question: bool = False
-    options: str = None
+    options: Optional[str] = None
 
     def get(self, attr, default=None):
         return getattr(self, attr, default)
+
+# --------------------------------------------------------------------------------------------------
+
+
+class TaskQuestion(SwellQuestion):
+    question_type = 'task'
+
+# --------------------------------------------------------------------------------------------------
+
+
+class SuiteQuestion(SwellQuestion):
+    question_type = 'suite'
 
 # --------------------------------------------------------------------------------------------------
 
@@ -53,10 +66,22 @@ class SwellQuestion:
 class QuestionList:
     """Basic dataclass containing a list of questions for each model, suite, task"""
     name: str
-    list_type: str
     questions: list
+    list_type: str = None
 
     def get(self, attr, default=None):
         return getattr(self, attr, default)
+
+# --------------------------------------------------------------------------------------------------
+
+
+class TaskQuestionList(QuestionList):
+    list_type = 'task'
+
+# --------------------------------------------------------------------------------------------------
+
+
+class SuiteQuestionList(QuestionList):
+    list_type = 'suite'
 
 # --------------------------------------------------------------------------------------------------

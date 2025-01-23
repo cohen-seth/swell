@@ -141,9 +141,7 @@ class PrepareExperimentConfigAndSuite:
 
         if suite_question_list is not None:
             for question in suite_question_list:
-                question_obj = getattr(importlib.import_module(
-                    'swell.suites.suite_questions'), question)
-                question_dictionary[question] = asdict(question_obj)
+                question_dictionary[question.name] = asdict(question)
 
         # Create a dictionary of all task questions for tasks needed by the suite
         question_dictionary_tasks = {}
@@ -156,10 +154,8 @@ class PrepareExperimentConfigAndSuite:
             if hasattr(question_list_module, task):
                 task_question_list = getattr(question_list_module, task).get('questions')
                 if task_question_list is not None:
-                    for question in task_question_list:
-                        question_obj = getattr(importlib.import_module(
-                            'swell.tasks.task_questions'), question)
-                        question_dictionary_tasks[question] = asdict(question_obj)
+                    for question_obj in task_question_list:
+                        question_dictionary_tasks[question.name] = asdict(question)
             else:
                 task_question_list = []
 

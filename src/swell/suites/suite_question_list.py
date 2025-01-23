@@ -11,200 +11,164 @@
 import os
 from dataclasses import dataclass
 
-from swell.utilities.swell_questions import QuestionList
+from swell.utilities.swell_questions import SuiteQuestionList
+import swell.suites.suite_questions as sq
 
 
 # --------------------------------------------------------------------------------------------------
 
-all_models = QuestionList(
-    list_type="model_dependent",
-    name="all_models",
-    questions=[
-        "cycle_times",
-        "ensemble_hofx_packets",
-        "ensemble_hofx_strategy",
-        "skip_ensemble_hofx",
-        "window_type"
-    ]
-)
-
-
-# --------------------------------------------------------------------------------------------------
-
-geos_marine = QuestionList(
-    list_type="model_dependent",
-    name="geos_marine",
-    questions=[
-        "marine_models"
-    ]
-)
-
-
-# --------------------------------------------------------------------------------------------------
-
-_3dfgat_atmos = QuestionList(
-    list_type="suite",
+_3dfgat_atmos = SuiteQuestionList(
     name="3dfgat_atmos",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-_3dfgat_cycle = QuestionList(
-    list_type="suite",
+_3dfgat_cycle = SuiteQuestionList(
     name="3dfgat_cycle",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "marine_models",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.marine_models,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-_3dvar = QuestionList(
-    list_type="suite",
+_3dvar = SuiteQuestionList(
     name="3dvar",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "marine_models",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.marine_models,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-_3dvar_atmos = QuestionList(
-    list_type="suite",
+_3dvar_atmos = SuiteQuestionList(
     name="3dvar_atmos",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-_3dvar_cycle = QuestionList(
-    list_type="suite",
+_3dvar_cycle = SuiteQuestionList(
     name="3dvar_cycle",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "marine_models",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.marine_models,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-all_suites = QuestionList(
-    list_type="suite",
+all_suites = SuiteQuestionList(
     name="all_suites",
     questions=[
-        "experiment_id",
-        "experiment_root"
+        sq.experiment_id,
+        sq.experiment_root
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-convert_ncdiags = QuestionList(
-    list_type="suite",
+convert_ncdiags = SuiteQuestionList(
     name="convert_ncdiags",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-forecast_geos = QuestionList(
-    list_type="suite",
+forecast_geos = SuiteQuestionList(
     name="forecast_geos",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-hofx = QuestionList(
-    list_type="suite",
+hofx = SuiteQuestionList(
     name="hofx",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "marine_models",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point",
-        "window_type"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.marine_models,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point,
+        sq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-localensembleda = QuestionList(
-    list_type="suite",
+localensembleda = SuiteQuestionList(
     name="localensembleda",
     questions=[
-        "cycle_times",
-        "ensemble_hofx_packets",
-        "ensemble_hofx_strategy",
-        "final_cycle_point",
-        "marine_models",
-        "model_components",
-        "runahead_limit",
-        "skip_ensemble_hofx",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.ensemble_hofx_packets,
+        sq.ensemble_hofx_strategy,
+        sq.final_cycle_point,
+        sq.marine_models,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.skip_ensemble_hofx,
+        sq.start_cycle_point
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-ufo_testing = QuestionList(
-    list_type="suite",
+ufo_testing = SuiteQuestionList(
     name="ufo_testing",
     questions=[
-        "cycle_times",
-        "final_cycle_point",
-        "model_components",
-        "runahead_limit",
-        "start_cycle_point"
+        sq.cycle_times,
+        sq.final_cycle_point,
+        sq.model_components,
+        sq.runahead_limit,
+        sq.start_cycle_point
     ]
 )
 

@@ -11,810 +11,664 @@
 import os
 from dataclasses import dataclass
 
-from swell.utilities.swell_questions import QuestionList
+from swell.utilities.swell_questions import TaskQuestionList
+import swell.tasks.task_questions as tq
 
 
 # --------------------------------------------------------------------------------------------------
 
-all_models = QuestionList(
-    list_type="model_dependent",
-    name="all_models",
-    questions=[
-        "analysis_forecast_window_offset",
-        "analysis_variables",
-        "background_error_model",
-        "background_experiment",
-        "background_frequency",
-        "background_time_offset",
-        "clean_patterns",
-        "gradient_norm_reduction",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "minimizer",
-        "number_of_iterations",
-        "obs_experiment",
-        "obs_provider",
-        "observations",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
-    ]
-)
-
-
-# --------------------------------------------------------------------------------------------------
-
-geos_atmosphere = QuestionList(
-    list_type="model_dependent",
-    name="geos_atmosphere",
-    questions=[
-        "crtm_coeff_dir",
-        "cycling_varbc",
-        "ensemble_hofx_packets",
-        "ensemble_hofx_strategy",
-        "ensemble_num_members",
-        "ensmean_only",
-        "ensmeanvariance_only",
-        "geos_x_background_directory",
-        "geovals_experiment",
-        "geovals_provider",
-        "gsibec_configuration",
-        "horizontal_localization_lengthscale",
-        "horizontal_localization_max_nobs",
-        "horizontal_localization_method",
-        "local_ensemble_inflation_mult",
-        "local_ensemble_inflation_rtpp",
-        "local_ensemble_inflation_rtps",
-        "local_ensemble_save_posterior_ensemble",
-        "local_ensemble_save_posterior_ensemble_increments",
-        "local_ensemble_save_posterior_mean",
-        "local_ensemble_save_posterior_mean_increment",
-        "local_ensemble_solver",
-        "local_ensemble_use_linear_observer",
-        "npx_proc",
-        "npy_proc",
-        "observing_system_records_mksi_path",
-        "observing_system_records_mksi_path_tag",
-        "observing_system_records_path",
-        "path_to_ensemble",
-        "path_to_geos_adas_background",
-        "path_to_gsi_bc_coefficients",
-        "path_to_gsi_nc_diags",
-        "produce_geovals",
-        "single_observations",
-        "skip_ensemble_hofx",
-        "vertical_localization_apply_log_transform",
-        "vertical_localization_function",
-        "vertical_localization_ioda_vertical_coord",
-        "vertical_localization_ioda_vertical_coord_group",
-        "vertical_localization_lengthscale",
-        "vertical_localization_method"
-    ]
-)
-
-
-# --------------------------------------------------------------------------------------------------
-
-geos_marine = QuestionList(
-    list_type="model_dependent",
-    name="geos_marine",
-    questions=[
-        "cice6_domains",
-        "marine_models",
-        "mom6_iau",
-        "total_processors"
-    ]
-)
-
-
-# --------------------------------------------------------------------------------------------------
-
-geos_ocean = QuestionList(
-    list_type="model_dependent",
-    name="geos_ocean",
-    questions=[
-        "mom6_iau",
-        "total_processors"
-    ]
-)
-
-
-# --------------------------------------------------------------------------------------------------
-
-GetBackground = QuestionList(
-    list_type="task",
+GetBackground = TaskQuestionList(
     name="GetBackground",
     questions=[
-        "analysis_forecast_window_offset",
-        "background_experiment",
-        "background_frequency",
-        "horizontal_resolution",
-        "r2d2_local_path",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.analysis_forecast_window_offset,
+        tq.background_experiment,
+        tq.background_frequency,
+        tq.horizontal_resolution,
+        tq.r2d2_local_path,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-MoveDaRestart = QuestionList(
-    list_type="task",
+MoveDaRestart = TaskQuestionList(
     name="MoveDaRestart",
     questions=[
-        "analysis_forecast_window_offset",
-        "mom6_iau",
-        "window_length"
+        tq.analysis_forecast_window_offset,
+        tq.mom6_iau,
+        tq.window_length
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-PrepareAnalysis = QuestionList(
-    list_type="task",
+PrepareAnalysis = TaskQuestionList(
     name="PrepareAnalysis",
     questions=[
-        "analysis_forecast_window_offset",
-        "analysis_variables",
-        "mom6_iau",
-        "total_processors"
+        tq.analysis_forecast_window_offset,
+        tq.analysis_variables,
+        tq.mom6_iau,
+        tq.total_processors
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-StoreBackground = QuestionList(
-    list_type="task",
+StoreBackground = TaskQuestionList(
     name="StoreBackground",
     questions=[
-        "analysis_forecast_window_offset",
-        "background_experiment",
-        "background_frequency",
-        "horizontal_resolution",
-        "r2d2_local_path",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.analysis_forecast_window_offset,
+        tq.background_experiment,
+        tq.background_frequency,
+        tq.horizontal_resolution,
+        tq.r2d2_local_path,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GenerateBClimatology = QuestionList(
-    list_type="task",
+GenerateBClimatology = TaskQuestionList(
     name="GenerateBClimatology",
     questions=[
-        "analysis_variables",
-        "background_error_model",
-        "generate_yaml_and_exit",
-        "horizontal_resolution",
-        "marine_models",
-        "npx_proc",
-        "npy_proc",
-        "swell_static_files",
-        "swell_static_files_user",
-        "total_processors",
-        "vertical_resolution",
-        "window_offset",
-        "window_type"
+        tq.analysis_variables,
+        tq.background_error_model,
+        tq.generate_yaml_and_exit,
+        tq.horizontal_resolution,
+        tq.marine_models,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.swell_static_files,
+        tq.swell_static_files_user,
+        tq.total_processors,
+        tq.vertical_resolution,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediConvertStateSoca2ciceExecutable = QuestionList(
-    list_type="task",
+RunJediConvertStateSoca2ciceExecutable = TaskQuestionList(
     name="RunJediConvertStateSoca2ciceExecutable",
     questions=[
-        "analysis_variables",
-        "cice6_domains",
-        "generate_yaml_and_exit",
-        "jedi_forecast_model",
-        "marine_models",
-        "observations",
-        "total_processors",
-        "window_offset",
-        "window_type"
+        tq.analysis_variables,
+        tq.cice6_domains,
+        tq.generate_yaml_and_exit,
+        tq.jedi_forecast_model,
+        tq.marine_models,
+        tq.observations,
+        tq.total_processors,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediEnsembleMeanVariance = QuestionList(
-    list_type="task",
+RunJediEnsembleMeanVariance = TaskQuestionList(
     name="RunJediEnsembleMeanVariance",
     questions=[
-        "analysis_variables",
-        "ensemble_num_members",
-        "generate_yaml_and_exit",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "npx_proc",
-        "npy_proc",
-        "observations",
-        "observing_system_records_path",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.analysis_variables,
+        tq.ensemble_num_members,
+        tq.generate_yaml_and_exit,
+        tq.horizontal_resolution,
+        tq.jedi_forecast_model,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.vertical_resolution,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediFgatExecutable = QuestionList(
-    list_type="task",
+RunJediFgatExecutable = TaskQuestionList(
     name="RunJediFgatExecutable",
     questions=[
-        "analysis_variables",
-        "background_frequency",
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "generate_yaml_and_exit",
-        "gradient_norm_reduction",
-        "gsibec_configuration",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "marine_models",
-        "minimizer",
-        "npx_proc",
-        "npy_proc",
-        "number_of_iterations",
-        "observations",
-        "observing_system_records_path",
-        "total_processors",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.analysis_variables,
+        tq.background_frequency,
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.generate_yaml_and_exit,
+        tq.gradient_norm_reduction,
+        tq.gsibec_configuration,
+        tq.horizontal_resolution,
+        tq.jedi_forecast_model,
+        tq.marine_models,
+        tq.minimizer,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.number_of_iterations,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.total_processors,
+        tq.vertical_resolution,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediVariationalExecutable = QuestionList(
-    list_type="task",
+RunJediVariationalExecutable = TaskQuestionList(
     name="RunJediVariationalExecutable",
     questions=[
-        "analysis_variables",
-        "background_frequency",
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "generate_yaml_and_exit",
-        "gradient_norm_reduction",
-        "gsibec_configuration",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "minimizer",
-        "npx_proc",
-        "npy_proc",
-        "number_of_iterations",
-        "observations",
-        "observing_system_records_path",
-        "total_processors",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.analysis_variables,
+        tq.background_frequency,
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.generate_yaml_and_exit,
+        tq.gradient_norm_reduction,
+        tq.gsibec_configuration,
+        tq.horizontal_resolution,
+        tq.jedi_forecast_model,
+        tq.minimizer,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.number_of_iterations,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.total_processors,
+        tq.vertical_resolution,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GenerateBClimatologyByLinking = QuestionList(
-    list_type="task",
+GenerateBClimatologyByLinking = TaskQuestionList(
     name="GenerateBClimatologyByLinking",
     questions=[
-        "background_error_model",
-        "horizontal_resolution",
-        "swell_static_files",
-        "swell_static_files_user",
-        "vertical_resolution",
-        "window_offset",
-        "window_type"
+        tq.background_error_model,
+        tq.horizontal_resolution,
+        tq.swell_static_files,
+        tq.swell_static_files_user,
+        tq.vertical_resolution,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetBackgroundGeosExperiment = QuestionList(
-    list_type="task",
+GetBackgroundGeosExperiment = TaskQuestionList(
     name="GetBackgroundGeosExperiment",
     questions=[
-        "background_experiment",
-        "background_time_offset",
-        "geos_x_background_directory"
+        tq.background_experiment,
+        tq.background_time_offset,
+        tq.geos_x_background_directory
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-LinkGeosOutput = QuestionList(
-    list_type="task",
+LinkGeosOutput = TaskQuestionList(
     name="LinkGeosOutput",
     questions=[
-        "background_frequency",
-        "marine_models",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.background_frequency,
+        tq.marine_models,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediHofxEnsembleExecutable = QuestionList(
-    list_type="task",
+RunJediHofxEnsembleExecutable = TaskQuestionList(
     name="RunJediHofxEnsembleExecutable",
     questions=[
-        "background_frequency",
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "ensemble_hofx_packets",
-        "ensemble_hofx_strategy",
-        "ensemble_num_members",
-        "generate_yaml_and_exit",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "npx_proc",
-        "npy_proc",
-        "observations",
-        "total_processors",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.background_frequency,
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.ensemble_hofx_packets,
+        tq.ensemble_hofx_strategy,
+        tq.ensemble_num_members,
+        tq.generate_yaml_and_exit,
+        tq.horizontal_resolution,
+        tq.jedi_forecast_model,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.observations,
+        tq.total_processors,
+        tq.vertical_resolution,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediHofxExecutable = QuestionList(
-    list_type="task",
+RunJediHofxExecutable = TaskQuestionList(
     name="RunJediHofxExecutable",
     questions=[
-        "background_frequency",
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "generate_yaml_and_exit",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "npx_proc",
-        "npy_proc",
-        "observations",
-        "observing_system_records_path",
-        "save_geovals",
-        "total_processors",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.background_frequency,
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.generate_yaml_and_exit,
+        tq.horizontal_resolution,
+        tq.jedi_forecast_model,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.save_geovals,
+        tq.total_processors,
+        tq.vertical_resolution,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediObsfiltersExecutable = QuestionList(
-    list_type="task",
+RunJediObsfiltersExecutable = TaskQuestionList(
     name="RunJediObsfiltersExecutable",
     questions=[
-        "background_frequency",
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "generate_yaml_and_exit",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "npx_proc",
-        "npy_proc",
-        "observations",
-        "observing_system_records_path",
-        "total_processors",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.background_frequency,
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.generate_yaml_and_exit,
+        tq.horizontal_resolution,
+        tq.jedi_forecast_model,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.total_processors,
+        tq.vertical_resolution,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-EvaObservations = QuestionList(
-    list_type="task",
+EvaObservations = TaskQuestionList(
     name="EvaObservations",
     questions=[
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "observations",
-        "observing_system_records_path",
-        "window_offset"
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.window_offset
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetGeovals = QuestionList(
-    list_type="task",
+GetGeovals = TaskQuestionList(
     name="GetGeovals",
     questions=[
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "geovals_experiment",
-        "geovals_provider",
-        "observations",
-        "r2d2_local_path",
-        "window_length",
-        "window_offset"
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.geovals_experiment,
+        tq.geovals_provider,
+        tq.observations,
+        tq.r2d2_local_path,
+        tq.window_length,
+        tq.window_offset
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetObservations = QuestionList(
-    list_type="task",
+GetObservations = TaskQuestionList(
     name="GetObservations",
     questions=[
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "cycling_varbc",
-        "obs_experiment",
-        "obs_provider",
-        "observations",
-        "observing_system_records_path",
-        "r2d2_local_path",
-        "window_length",
-        "window_offset"
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.cycling_varbc,
+        tq.obs_experiment,
+        tq.obs_provider,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.r2d2_local_path,
+        tq.window_length,
+        tq.window_offset
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GsiBcToIoda = QuestionList(
-    list_type="task",
+GsiBcToIoda = TaskQuestionList(
     name="GsiBcToIoda",
     questions=[
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "observations",
-        "observing_system_records_path",
-        "window_offset"
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.window_offset
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediLocalEnsembleDaExecutable = QuestionList(
-    list_type="task",
+RunJediLocalEnsembleDaExecutable = TaskQuestionList(
     name="RunJediLocalEnsembleDaExecutable",
     questions=[
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "ensemble_hofx_packets",
-        "ensemble_hofx_strategy",
-        "ensemble_num_members",
-        "ensmean_only",
-        "ensmeanvariance_only",
-        "generate_yaml_and_exit",
-        "horizontal_localization_lengthscale",
-        "horizontal_localization_max_nobs",
-        "horizontal_localization_method",
-        "horizontal_resolution",
-        "jedi_forecast_model",
-        "local_ensemble_inflation_mult",
-        "local_ensemble_inflation_rtpp",
-        "local_ensemble_inflation_rtps",
-        "local_ensemble_save_posterior_ensemble",
-        "local_ensemble_save_posterior_ensemble_increments",
-        "local_ensemble_save_posterior_mean",
-        "local_ensemble_save_posterior_mean_increment",
-        "local_ensemble_solver",
-        "local_ensemble_use_linear_observer",
-        "npx_proc",
-        "npy_proc",
-        "observations",
-        "observing_system_records_path",
-        "skip_ensemble_hofx",
-        "total_processors",
-        "vertical_localization_apply_log_transform",
-        "vertical_localization_function",
-        "vertical_localization_ioda_vertical_coord",
-        "vertical_localization_ioda_vertical_coord_group",
-        "vertical_localization_lengthscale",
-        "vertical_localization_method",
-        "vertical_resolution",
-        "window_length",
-        "window_offset",
-        "window_type"
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.ensemble_hofx_packets,
+        tq.ensemble_hofx_strategy,
+        tq.ensemble_num_members,
+        tq.ensmean_only,
+        tq.ensmeanvariance_only,
+        tq.generate_yaml_and_exit,
+        tq.horizontal_localization_lengthscale,
+        tq.horizontal_localization_max_nobs,
+        tq.horizontal_localization_method,
+        tq.horizontal_resolution,
+        tq.jedi_forecast_model,
+        tq.local_ensemble_inflation_mult,
+        tq.local_ensemble_inflation_rtpp,
+        tq.local_ensemble_inflation_rtps,
+        tq.local_ensemble_save_posterior_ensemble,
+        tq.local_ensemble_save_posterior_ensemble_increments,
+        tq.local_ensemble_save_posterior_mean,
+        tq.local_ensemble_save_posterior_mean_increment,
+        tq.local_ensemble_solver,
+        tq.local_ensemble_use_linear_observer,
+        tq.npx_proc,
+        tq.npy_proc,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.skip_ensemble_hofx,
+        tq.total_processors,
+        tq.vertical_localization_apply_log_transform,
+        tq.vertical_localization_function,
+        tq.vertical_localization_ioda_vertical_coord,
+        tq.vertical_localization_ioda_vertical_coord_group,
+        tq.vertical_localization_lengthscale,
+        tq.vertical_localization_method,
+        tq.vertical_resolution,
+        tq.window_length,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-RunJediUfoTestsExecutable = QuestionList(
-    list_type="task",
+RunJediUfoTestsExecutable = TaskQuestionList(
     name="RunJediUfoTestsExecutable",
     questions=[
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "generate_yaml_and_exit",
-        "observations",
-        "observing_system_records_path",
-        "single_observations",
-        "window_length",
-        "window_offset"
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.generate_yaml_and_exit,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.single_observations,
+        tq.window_length,
+        tq.window_offset
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-SaveObsDiags = QuestionList(
-    list_type="task",
+SaveObsDiags = TaskQuestionList(
     name="SaveObsDiags",
     questions=[
-        "background_time_offset",
-        "crtm_coeff_dir",
-        "observations",
-        "observing_system_records_path",
-        "r2d2_local_path",
-        "window_offset"
+        tq.background_time_offset,
+        tq.crtm_coeff_dir,
+        tq.observations,
+        tq.observing_system_records_path,
+        tq.r2d2_local_path,
+        tq.window_offset
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-BuildJedi = QuestionList(
-    list_type="task",
+BuildJedi = TaskQuestionList(
     name="BuildJedi",
     questions=[
-        "bundles",
-        "jedi_build_method"
+        tq.bundles,
+        tq.jedi_build_method
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-CloneJedi = QuestionList(
-    list_type="task",
+CloneJedi = TaskQuestionList(
     name="CloneJedi",
     questions=[
-        "bundles",
-        "existing_jedi_source_directory",
-        "existing_jedi_source_directory_pinned",
-        "jedi_build_method"
+        tq.bundles,
+        tq.existing_jedi_source_directory,
+        tq.existing_jedi_source_directory_pinned,
+        tq.jedi_build_method
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-CleanCycle = QuestionList(
-    list_type="task",
+CleanCycle = TaskQuestionList(
     name="CleanCycle",
     questions=[
-        "clean_patterns"
+        tq.clean_patterns
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-BuildGeosByLinking = QuestionList(
-    list_type="task",
+BuildGeosByLinking = TaskQuestionList(
     name="BuildGeosByLinking",
     questions=[
-        "existing_geos_gcm_build_path",
-        "geos_build_method"
+        tq.existing_geos_gcm_build_path,
+        tq.geos_build_method
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-PrepGeosRunDir = QuestionList(
-    list_type="task",
+PrepGeosRunDir = TaskQuestionList(
     name="PrepGeosRunDir",
     questions=[
-        "existing_geos_gcm_build_path",
-        "forecast_duration",
-        "geos_experiment_directory",
-        "swell_static_files",
-        "swell_static_files_user"
+        tq.existing_geos_gcm_build_path,
+        tq.forecast_duration,
+        tq.geos_experiment_directory,
+        tq.swell_static_files,
+        tq.swell_static_files_user
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-CloneGeos = QuestionList(
-    list_type="task",
+CloneGeos = TaskQuestionList(
     name="CloneGeos",
     questions=[
-        "existing_geos_gcm_source_path",
-        "geos_build_method",
-        "geos_gcm_tag"
+        tq.existing_geos_gcm_source_path,
+        tq.geos_build_method,
+        tq.geos_gcm_tag
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-BuildJediByLinking = QuestionList(
-    list_type="task",
+BuildJediByLinking = TaskQuestionList(
     name="BuildJediByLinking",
     questions=[
-        "existing_jedi_build_directory",
-        "existing_jedi_build_directory_pinned",
-        "jedi_build_method"
+        tq.existing_jedi_build_directory,
+        tq.existing_jedi_build_directory_pinned,
+        tq.jedi_build_method
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-MoveForecastRestart = QuestionList(
-    list_type="task",
+MoveForecastRestart = TaskQuestionList(
     name="MoveForecastRestart",
     questions=[
-        "forecast_duration"
+        tq.forecast_duration
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-BuildGeos = QuestionList(
-    list_type="task",
+BuildGeos = TaskQuestionList(
     name="BuildGeos",
     questions=[
-        "geos_build_method"
+        tq.geos_build_method
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetGeosRestart = QuestionList(
-    list_type="task",
+GetGeosRestart = TaskQuestionList(
     name="GetGeosRestart",
     questions=[
-        "geos_restarts_directory",
-        "swell_static_files",
-        "swell_static_files_user"
+        tq.geos_restarts_directory,
+        tq.swell_static_files,
+        tq.swell_static_files_user
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-StageJedi = QuestionList(
-    list_type="task",
+StageJedi = TaskQuestionList(
     name="StageJedi",
     questions=[
-        "gsibec_configuration",
-        "horizontal_resolution",
-        "swell_static_files",
-        "swell_static_files_user",
-        "vertical_resolution"
+        tq.gsibec_configuration,
+        tq.horizontal_resolution,
+        tq.swell_static_files,
+        tq.swell_static_files_user,
+        tq.vertical_resolution
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-EvaIncrement = QuestionList(
-    list_type="task",
+EvaIncrement = TaskQuestionList(
     name="EvaIncrement",
     questions=[
-        "marine_models",
-        "window_offset",
-        "window_type"
+        tq.marine_models,
+        tq.window_offset,
+        tq.window_type
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GenerateObservingSystemRecords = QuestionList(
-    list_type="task",
+GenerateObservingSystemRecords = TaskQuestionList(
     name="GenerateObservingSystemRecords",
     questions=[
-        "observations",
-        "observing_system_records_mksi_path",
-        "observing_system_records_path"
+        tq.observations,
+        tq.observing_system_records_mksi_path,
+        tq.observing_system_records_path
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GsiNcdiagToIoda = QuestionList(
-    list_type="task",
+GsiNcdiagToIoda = TaskQuestionList(
     name="GsiNcdiagToIoda",
     questions=[
-        "observations",
-        "produce_geovals",
-        "single_observations",
-        "window_offset"
+        tq.observations,
+        tq.produce_geovals,
+        tq.single_observations,
+        tq.window_offset
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-CloneGeosMksi = QuestionList(
-    list_type="task",
+CloneGeosMksi = TaskQuestionList(
     name="CloneGeosMksi",
     questions=[
-        "observing_system_records_mksi_path",
-        "observing_system_records_mksi_path_tag"
+        tq.observing_system_records_mksi_path,
+        tq.observing_system_records_mksi_path_tag
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetEnsemble = QuestionList(
-    list_type="task",
+GetEnsemble = TaskQuestionList(
     name="GetEnsemble",
     questions=[
-        "path_to_ensemble"
+        tq.path_to_ensemble
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetGeosAdasBackground = QuestionList(
-    list_type="task",
+GetGeosAdasBackground = TaskQuestionList(
     name="GetGeosAdasBackground",
     questions=[
-        "path_to_geos_adas_background"
+        tq.path_to_geos_adas_background
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetGsiBc = QuestionList(
-    list_type="task",
+GetGsiBc = TaskQuestionList(
     name="GetGsiBc",
     questions=[
-        "path_to_gsi_bc_coefficients",
-        "window_length"
+        tq.path_to_gsi_bc_coefficients,
+        tq.window_length
     ]
 )
 
 
 # --------------------------------------------------------------------------------------------------
 
-GetGsiNcdiag = QuestionList(
-    list_type="task",
+GetGsiNcdiag = TaskQuestionList(
     name="GetGsiNcdiag",
     questions=[
-        "path_to_gsi_nc_diags"
+        tq.path_to_gsi_nc_diags
     ]
 )
 
