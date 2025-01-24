@@ -1,3 +1,4 @@
+# --------------------------------------------------------------------------------------------------
 # (C) Copyright 2021- United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration. All Rights Reserved.
 #
@@ -6,10 +7,6 @@
 
 
 # --------------------------------------------------------------------------------------------------
-
-
-import os
-from dataclasses import dataclass
 
 from swell.utilities.swell_questions import TaskQuestionList
 import swell.tasks.task_questions as tq

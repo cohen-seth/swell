@@ -1,20 +1,3 @@
-# (C) Copyright 2021- United States Government as represented by the Administrator of the
-# National Aeronautics and Space Administration. All Rights Reserved.
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-
-# --------------------------------------------------------------------------------------------------
-
-
-import os
-import yaml
-from typing import Callable
-
-from swell.swell_path import get_swell_path
-from swell.utilities.logger import Logger
-
-
 # --------------------------------------------------------------------------------------------------
 #  @package configuration
 #
@@ -26,7 +9,7 @@ from swell.utilities.logger import Logger
 
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional 
 
 
 # --------------------------------------------------------------------------------------------------
@@ -76,12 +59,14 @@ class QuestionList:
 
 
 class TaskQuestionList(QuestionList):
+    questions: List[TaskQuestion]
     list_type = 'task'
 
 # --------------------------------------------------------------------------------------------------
 
 
 class SuiteQuestionList(QuestionList):
+    questions: List[SuiteQuestion]
     list_type = 'suite'
 
 # --------------------------------------------------------------------------------------------------

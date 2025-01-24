@@ -1,3 +1,4 @@
+# --------------------------------------------------------------------------------------------------
 # (C) Copyright 2021- United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration. All Rights Reserved.
 #
@@ -7,9 +8,6 @@
 
 # --------------------------------------------------------------------------------------------------
 
-
-import os
-from dataclasses import dataclass
 
 from swell.utilities.swell_questions import SuiteQuestionList
 import swell.suites.suite_questions as sq
